@@ -3,13 +3,12 @@ import typing
 from django.db.models import Max, Q, Count
 from django.http import StreamingHttpResponse, HttpResponse
 from django.utils.dateparse import parse_date
-from rest_framework import serializers, permissions, status
+from rest_framework import serializers, permissions
 from rest_framework.request import Request
 from rest_framework.generics import get_object_or_404
-from rest_framework.response import Response
 from copy import copy
 
-from iaso.models import Form, Project, OrgUnitType, Profile, OrgUnit
+from iaso.models import Form, Project, OrgUnitType, OrgUnit
 from iaso.utils import timestamp_to_datetime
 from .common import ModelViewSet, TimestampField, DynamicFieldsModelSerializer
 from hat.api.export_utils import Echo, generate_xlsx, iter_items
