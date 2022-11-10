@@ -79,11 +79,14 @@ export const OrgUnitFilters: FunctionComponent<Props> = ({
     const { formatMessage }: { formatMessage: IntlFormatMessage } =
         useSafeIntl();
     const currentUser = useCurrentUser();
+    const { source, version } = searches[searchIndex];
 
-    const [dataSourceId, setDataSourceId] = useState<number | undefined>();
-    const [sourceVersionId, setSourceVersionId] = useState<
-        number | undefined
-    >();
+    const [dataSourceId, setDataSourceId] = useState<number | undefined>(
+        source ? parseInt(source, 10) : undefined,
+    );
+    const [sourceVersionId, setSourceVersionId] = useState<number | undefined>(
+        version ? parseInt(version, 10) : undefined,
+    );
     const [initialOrgUnitId, setInitialOrgUnitId] = useState<
         string | undefined
     >(currentSearch?.levels);
@@ -177,7 +180,7 @@ export const OrgUnitFilters: FunctionComponent<Props> = ({
             if (
                 dataSource &&
                 !dataSource.original?.versions.find(
-                    version => version.id === sourceVersionId,
+                    v => v.id === sourceVersionId,
                 )
             ) {
                 const selectedVersion =
@@ -198,9 +201,9 @@ export const OrgUnitFilters: FunctionComponent<Props> = ({
             dataSources
                 .filter(src => src.original?.id === dataSourceId)[0]
                 ?.original?.versions.sort((a, b) => a.number - b.number)
-                .map(version => ({
-                    label: version.number.toString(),
-                    value: version.id.toString(),
+                .map(v => ({
+                    label: v.number.toString(),
+                    value: v.id.toString(),
                 })) ?? []
         );
     }, [dataSourceId, dataSources]);

@@ -14,12 +14,15 @@ import { getChipColors } from '../../../constants/chipColors';
 
 export const baseUrl = baseUrls.groups;
 
-const getUrl = groupId => {
+const getUrl = group => {
+    const groupId = group.id;
+    const sourceId = group.source_version?.data_source?.id ?? null;
+    const versionId = group.source_version?.id ?? null;
     const defaultChipColor = getChipColors(0).replace('#', '');
     return (
         `${baseUrls.orgUnits}/locationLimit/3000/order/id` +
         `/pageSize/50/page/1/searchTabIndex/0/searchActive/true` +
-        `/searches/[{"validation_status":"all", "color":"${defaultChipColor}", "group":"${groupId}", "source": null}]`
+        `/searches/[{"validation_status":"all", "color":"${defaultChipColor}", "group":"${groupId}", "source": "${sourceId}", "version":"${versionId}"}]`
     );
 };
 const TableColumns = (formatMessage, params, deleteGroup, saveGroup) => [
@@ -49,11 +52,13 @@ const TableColumns = (formatMessage, params, deleteGroup, saveGroup) => [
     {
         Header: formatMessage(MESSAGES.orgUnit),
         accessor: 'org_unit_count',
-        Cell: settings => (
-            <Link to={getUrl(settings.row.original.id)}>
-                {formatThousand(settings.value)}
-            </Link>
-        ),
+        Cell: settings => {
+            return (
+                <Link to={getUrl(settings.row.original)}>
+                    {formatThousand(settings.value)}
+                </Link>
+            );
+        },
     },
     {
         Header: formatMessage(MESSAGES.actions),
