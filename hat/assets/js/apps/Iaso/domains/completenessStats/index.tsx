@@ -41,7 +41,7 @@ export const CompletessStats: FunctionComponent<Props> = ({ params }) => {
     return (
         <>
             <TopBar
-                title={formatMessage(MESSAGES.completeness)}
+                title={formatMessage(MESSAGES.completenessStats)}
                 displayBackButton={false}
             />
             <Box p={2} className={classes.container} pb={2}>
