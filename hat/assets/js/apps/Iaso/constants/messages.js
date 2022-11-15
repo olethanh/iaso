@@ -133,6 +133,10 @@ const MESSAGES = defineMessages({
         defaultMessage: 'Storages',
         id: 'iaso.label.storages',
     },
+    completenessStats: {
+        id: 'iaso.permissions.completeness_stats',
+        defaultMessage: 'Completeness stats',
+    },
 });
 
 export default MESSAGES;

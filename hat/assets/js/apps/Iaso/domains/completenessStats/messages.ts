@@ -25,6 +25,10 @@ const MESSAGES = defineMessages({
         id: 'iaso.completeness.formsFilled',
         defaultMessage: '# Forms filled',
     },
+    completenessStats: {
+        id: 'iaso.permissions.completeness_stats',
+        defaultMessage: 'Completeness stats',
+    },
 });
 
 export default MESSAGES;
