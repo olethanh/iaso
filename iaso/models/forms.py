@@ -181,6 +181,9 @@ def _reformat_questions(questions):
     r = []
 
     for question in questions.values():
+
+        print("type", question["type"])
+
         if question["type"] == "note":
             continue
 
@@ -199,12 +202,17 @@ class FormVersionManager(models.Manager):
         with transaction.atomic():
             latest_version = self.latest_version(form)  # type: ignore
 
+            survey_json = survey.to_json()
+
+            print("survey_json", survey_json)
+            print("survey_xml", survey.to_xml())
+
             form_version = super().create(
                 **kwargs,
                 form=form,
                 file=SimpleUploadedFile(survey.generate_file_name("xml"), survey.to_xml(), content_type="text/xml"),
                 version_id=survey.version,
-                form_descriptor=survey.to_json(),
+                form_descriptor=survey_json,
             )
             form.form_id = survey.form_id
             form.update_possible_fields()
@@ -236,6 +244,7 @@ class FormVersion(models.Model):
     objects = FormVersionManager.from_queryset(FormVersionQuerySet)()
 
     def get_or_save_form_descriptor(self):  # TODO: remove me - should be populated on create
+        print("get_or_save_form_descriptor")
         if self.form_descriptor:
             json_survey = self.form_descriptor
         elif self.xls_file:

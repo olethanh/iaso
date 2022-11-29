@@ -40,10 +40,17 @@ class Survey:
 
 
 def to_json_dict(form_version):  # TODO: remove
+
+    print("to_json_dict")
+
     if not form_version.xls_file:
+        print("no XLS")
         return None
     try:
         survey = create_survey_from_xls(form_version.xls_file.file)
+
+        print("survey.to_json_dict()", survey.to_json_dict())
+
         return survey.to_json_dict()
     except FileNotFoundError as e:
         print("Failed to form in xls", e)

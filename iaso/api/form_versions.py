@@ -4,6 +4,7 @@ from rest_framework import serializers, parsers, permissions, exceptions
 from rest_framework.fields import Field
 
 from iaso.models import Form, FormVersion
+from iaso.models.forms import _reformat_questions
 from django.db.models.functions import Concat
 from django.db.models import Value, Count, TextField
 from django.db.models import BooleanField
@@ -48,6 +49,7 @@ class FormVersionSerializer(DynamicFieldsModelSerializer):
             "start_period",
             "end_period",
             "mapping_versions",
+            "possible_fields",
         ]
         read_only_fields = [
             "id",
@@ -72,12 +74,21 @@ class FormVersionSerializer(DynamicFieldsModelSerializer):
     mapping_versions = serializers.SerializerMethodField()
     start_period = serializers.CharField(required=False, default=None)
     end_period = serializers.CharField(required=False, default=None)
+    possible_fields = serializers.SerializerMethodField()
 
     def get_form_name(self, form_version):
         return form_version.form.name
 
     def get_descriptor(self, form_version):
         return form_version.get_or_save_form_descriptor()
+
+    def get_possible_fields(self, form_version):
+        questions = form_version.questions_by_name()
+        if isinstance(questions, dict):
+            return _reformat_questions(questions)
+        else:
+            print(f"Invalid questions on version {form_version}: {str(questions)[:50]}")
+            return []
 
     @staticmethod
     def get_mapping_versions(obj: FormVersion):
