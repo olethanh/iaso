@@ -15,6 +15,13 @@ from ..utils import slugify_underscore
 from .. import periods
 from uuid import uuid4
 
+from pprint import pformat
+from typing import Any
+
+from pygments import highlight
+from pygments.formatters import Terminal256Formatter
+from pygments.lexers import PythonLexer
+
 from ..utils.models.soft_deletable import (
     DefaultSoftDeletableManager,
     SoftDeletableModel,
@@ -172,6 +179,33 @@ class FormVersionQuerySet(models.QuerySet):
             return None
 
 
+def pprint_color(obj: Any) -> None:
+    """Pretty-print in color."""
+    print(highlight(pformat(obj), PythonLexer(), Terminal256Formatter()), end="")
+
+
+def get_subtype(question):
+    q_type = question["type"]
+
+    if q_type == "select one" or q_type == "select all that apply" or q_type == "rank":
+        if "media" in question and "image" in question["media"]:
+            return "image"
+
+        for c in question["children"]:
+            if "media" in c and "image" in c["media"]:
+                return "image"
+        return "text"
+
+    else:
+        return None
+
+
+def process_type(question):
+    sub_type = get_subtype(question)
+
+    return {"type": question["type"], "subtype": sub_type, "name": question["name"]}
+
+
 def _reformat_questions(questions):
     """Return all questions as a list instead of dict
     remove fields of type 'note'
@@ -182,10 +216,15 @@ def _reformat_questions(questions):
 
     for question in questions.values():
 
-        print("type", question["type"])
-
         if question["type"] == "note":
             continue
+
+        q_type = process_type(question)
+
+        if q_type["subtype"] is None:
+            print(q_type["type"])
+        else:
+            print(q_type["type"] + " : " + q_type["subtype"])
 
         n = {
             "name": question["name"],
