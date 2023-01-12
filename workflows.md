@@ -1,7 +1,7 @@
 ## hat's ER Diagram
 
 ```mermaid
-%%{init: {'theme': 'forest' } }%%
+%%{init: {'theme': 'neutral' } }%%
 erDiagram
 Form{
 ManyToManyField projects
