@@ -8,7 +8,11 @@ project_name = sys.argv[1]
 print(sys.argv)
 
 if len(sys.argv) > 2:
-    model_selector = sys.argv[2].split(",")
+
+    if "*" in sys.argv[2]:
+        model_selector = sys.argv[2].replace("*", "")
+    else:
+        model_selector = sys.argv[2].split(",")
 else:
     model_selector = None
 
@@ -21,11 +25,29 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", f"{project_name}.settings")
 django.setup()
 
 models_list = apps.get_models()
+
+# for model in models_list:
+#     print(str(model.__module__))
+#     print(model_selector)
+#     print(model_selector in str(model.__module__))
+#     print("---------")
+
+
 models_data = []
 relations = []
 
 if model_selector is not None:
-    models_list = [model for model in models_list if model.__name__ in model_selector]
+    if type(model_selector) == str:
+        models_list = [
+            model for model in models_list if model_selector in str(model.__module__)
+        ]
+    else:
+        models_list = [
+            model for model in models_list if model.__name__ in model_selector
+        ]
+
+
+print(models_list)
 
 try:
     from django.conf import settings
@@ -39,6 +61,7 @@ try:
 except Exception as e:
     print("There was a error in loading the models/app to exclude")
     pass
+
 for model in models_list:
     model_dict = {}
     model_fields = []
@@ -48,8 +71,9 @@ for model in models_list:
     model_dict[model.__name__] = model_fields
     models_data.append(model_dict)
 
-with open(model_file, "w") as f:
+with open("schemas/" + model_file, "w") as f:
     f.write(f"## {project_name}'s ER Diagram\n\n```mermaid\n")
+    f.write("%%{init: {'theme': 'neutral' } }%%\n")
     f.write("erDiagram\n")
     for model in models_data:
         for model_name in model:
