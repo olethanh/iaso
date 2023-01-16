@@ -15,7 +15,7 @@ Welcome to Iaso's documentation!
    self
 
    :glob:
-   pages/*.md
+   pages/doc/*
 
 
 Indices and tables
