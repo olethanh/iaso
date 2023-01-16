@@ -87,8 +87,8 @@ class WorkflowVersion(SoftDeletableModel):
     """
     WorkflowVersion has 'workflow' foreign key to the Workflow object.
     reverse relations :
-        changes -> WorkflowChange
-        follow_ups -> WorkflowFollowup
+    changes -> WorkflowChange
+    follow_ups -> WorkflowFollowup
     """
 
     workflow = models.ForeignKey(
