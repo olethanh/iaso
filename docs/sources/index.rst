@@ -7,16 +7,9 @@ Welcome to Iaso's documentation!
 ================================
 
 .. toctree::
-   :maxdepth: 4
    :caption: Contents:
 
-   pages/api/hat.rst
-   pages/api/iaso.rst
-   self
-
-   :glob:
-   pages/doc/*
-
+   pages/index.rst
 
 Indices and tables
 ==================
