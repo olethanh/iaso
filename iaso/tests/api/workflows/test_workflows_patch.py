@@ -7,7 +7,7 @@ from iaso import models as m
 from iaso.models import Workflow, WorkflowVersion
 from iaso.test import APITestCase
 
-from iaso.tests.api.test_workflows import var_dump, post_answer_schema
+from iaso.tests.api.workflows.test_workflows import post_answer_schema
 
 
 class WorkflowsPatchAPITestCase(APITestCase):
