@@ -15,7 +15,7 @@ from typing import Dict, Any
 
 import sentry_sdk
 from datetime import timedelta
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -233,6 +233,10 @@ print(
     "DB_NAME",
     DB_NAME,
 )
+
+print("DB_HOST", DB_HOST)
+print("DB_PORT", DB_PORT)
+
 DATABASES = {
     "default": {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
@@ -488,3 +492,7 @@ SOCIALACCOUNT_PROVIDERS = {
 CACHES = {"default": {"BACKEND": "django.core.cache.backends.db.DatabaseCache", "LOCATION": "django_cache_table"}}
 
 DASHBOARD_ENABLE_FULL_EXPORT = True  # allow csv export on /explore
+
+
+GDAL_LIBRARY_PATH = "/opt/homebrew/lib/libgdal.dylib"
+GEOS_LIBRARY_PATH = "/opt/local/lib/libgeos_c.dylib"
