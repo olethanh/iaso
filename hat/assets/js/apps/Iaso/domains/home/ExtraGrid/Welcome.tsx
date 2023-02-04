@@ -18,11 +18,7 @@ const useStyles = makeStyles({
     },
 });
 
-type Props = {
-    location: any;
-};
-
-export const Welcome: FunctionComponent<Props> = ({ location }) => {
+export const Welcome: FunctionComponent = () => {
     const { hasInputCode } = useContext(InputContext);
     const classes = useStyles();
     if (hasInputCode) {
