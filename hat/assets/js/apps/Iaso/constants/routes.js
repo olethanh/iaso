@@ -36,7 +36,7 @@ import { Details as WorkflowDetails } from '../domains/workflows/details.tsx';
 import { Details as StorageDetails } from '../domains/storages/details.tsx';
 import { Assignments } from '../domains/assignments/index.tsx';
 import { CompareInstanceLogs } from '../domains/instances/compare/components/CompareInstanceLogs.tsx';
-
+import { Welcome } from '../domains/home/ExtraGrid/Welcome.tsx';
 import { SHOW_PAGES } from '../utils/featureFlags';
 import { paginationPathParams } from '../routing/common';
 import { VisitDetails } from '../domains/entities/visit/VisitDetails.tsx';
@@ -109,6 +109,39 @@ export const pagesPath = {
         ...paginationPathParams,
     ],
     component: props => <Pages {...props} />,
+};
+export const bonusPath = {
+    baseUrl: baseUrls.hidden,
+    permissions: [
+        'iaso_forms',
+        'iaso_submissions',
+        'iaso_pages',
+        'iaso_mappings',
+        'iaso_org_units',
+        'iaso_links',
+        'iaso_completeness',
+        'iaso_completeness_stats',
+        'iaso_users',
+        'iaso_projects',
+        'iaso_sources',
+        'iaso_data_tasks',
+        'iaso_data_devices',
+        'iaso_entities',
+        'iaso_planning',
+        'iaso_assignments',
+        'iaso_teams',
+        'iaso_storages',
+        'iaso_workflows',
+    ],
+    // featureFlag: SHOW_PAGES,
+    params: [
+        {
+            isRequired: false,
+            key: 'accountId',
+        },
+        ...paginationPathParams,
+    ],
+    component: props => <Welcome {...props} />,
 };
 
 export const formDetailPath = {
@@ -1051,4 +1084,5 @@ export const routeConfigs = [
     storageDetailPath,
     workflowsPath,
     workflowsDetailPath,
+    bonusPath,
 ];
