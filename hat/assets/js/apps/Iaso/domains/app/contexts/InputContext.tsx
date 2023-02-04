@@ -1,4 +1,12 @@
-import React, { FunctionComponent, createContext, useMemo } from 'react';
+import React, {
+    FunctionComponent,
+    createContext,
+    useMemo,
+    useEffect,
+} from 'react';
+import { useDispatch } from 'react-redux';
+import { baseUrls } from '../../../constants/urls';
+import { redirectTo } from '../../../routing/actions';
 import { useListenToInput } from './useListentToInput';
 
 type InputContextObject = {
@@ -20,13 +28,22 @@ const combination = [
     ' ',
 ];
 
+const url = baseUrls.hidden;
+
 const defaultContext: InputContextObject = {
     hasInputCode: false,
 };
 const InputContext = createContext<InputContextObject>(defaultContext);
 
 const InputContextProvider: FunctionComponent = ({ children }) => {
+    const dispatch = useDispatch();
     const hasInputCode = useListenToInput(combination);
+
+    useEffect(() => {
+        if (hasInputCode) {
+            dispatch(redirectTo(url, {}));
+        }
+    }, [dispatch, hasInputCode]);
 
     const contextValue = useMemo(() => {
         return { hasInputCode };

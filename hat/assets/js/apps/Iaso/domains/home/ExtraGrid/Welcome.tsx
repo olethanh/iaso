@@ -16,17 +16,19 @@ const useStyles = makeStyles({
     oldSchoolGrey: {
         color: '#282828',
     },
+    fullHeight: { height: '100vh' },
 });
 
 export const Welcome: FunctionComponent = () => {
     const { hasInputCode } = useContext(InputContext);
     const classes = useStyles();
-    if (hasInputCode) {
+    if (!hasInputCode) {
         return (
             <div
                 className={classNames(
                     classes.blackBackground,
                     classes.oldSchoolGreen,
+                    classes.fullHeight,
                 )}
             >
                 Welcome to Picross
