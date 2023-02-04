@@ -14,6 +14,7 @@ import { fetchCurrentUser } from '../users/actions';
 import { routeConfigs, getPath } from '../../constants/routes';
 
 import ProtectedRoute from '../users/components/ProtectedRoute';
+import { InputContextProvider } from './contexts/InputContext.tsx';
 
 const getBaseRoutes = plugins => {
     const allRoutesConfigs = [
@@ -105,8 +106,10 @@ export default function App({ history, userHomePage, plugins }) {
                         horizontal: 'center',
                     }}
                 >
-                    <SnackBarContainer />
-                    <Router routes={routes} history={history} />
+                    <InputContextProvider>
+                        <SnackBarContainer />
+                        <Router routes={routes} history={history} />
+                    </InputContextProvider>
                 </SnackbarProvider>
             </LinkProvider>
         </LocalizedApp>
