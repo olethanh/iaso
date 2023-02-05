@@ -1,4 +1,4 @@
-import { Box, makeStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import classNames from 'classnames';
 import React, {
     FunctionComponent,
@@ -6,9 +6,11 @@ import React, {
     useEffect,
     useState,
 } from 'react';
+import { Home } from './Home';
 import { InputContext } from '../../app/contexts/InputContext';
+import { AdvancedGrid } from './AdvancedGrid';
 
-const useStyles = makeStyles({
+export const useStyles = makeStyles({
     blackBackground: {
         backgroundColor: 'black',
     },
@@ -58,9 +60,27 @@ const useStyles = makeStyles({
     },
 });
 
+const usePressAnyKey = activate => {
+    const [keyPressed, setKeyPressed] = useState<boolean>(false);
+
+    useEffect(() => {
+        const update = () => {
+            if (!keyPressed && activate) setKeyPressed(true);
+        };
+        document.addEventListener('keydown', update);
+        return () => {
+            document.removeEventListener('keydown', update);
+        };
+    });
+
+    return keyPressed;
+};
+
 export const Welcome: FunctionComponent = () => {
+    const classes = useStyles();
     const { hasInputCode } = useContext(InputContext);
     const [showPage, setShowPage] = useState<boolean>(false);
+    const isGameStarted = usePressAnyKey(showPage);
 
     useEffect(() => {
         if (hasInputCode) {
@@ -68,7 +88,6 @@ export const Welcome: FunctionComponent = () => {
         }
     }, [hasInputCode]);
 
-    const classes = useStyles();
     if (showPage) {
         return (
             <div
@@ -79,24 +98,8 @@ export const Welcome: FunctionComponent = () => {
                     classes.border,
                 )}
             >
-                <Box className={classNames(classes.border, classes.innerBody)}>
-                    <Box
-                        style={{
-                            display: 'grid',
-                            justifyContent: 'center',
-                            marginTop: 'calc(25vh - 25px)',
-                        }}
-                    >
-                        <Box className={classes.title}>
-                            <span style={{ textAlign: 'center', flex: '1' }}>
-                                Welcome to Picross
-                            </span>
-                        </Box>
-                    </Box>
-                    <Box className={classes.startText}>
-                        Press any key to start
-                    </Box>
-                </Box>
+                {!isGameStarted && <Home />}
+                {isGameStarted && <AdvancedGrid />}
             </div>
         );
     }
