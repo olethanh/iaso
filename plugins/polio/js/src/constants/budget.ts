@@ -23,7 +23,6 @@ export const BUDGET_STATES = [
 ];
 
 export const BUDGET_REQUEST = [
-    'budget_requested',
     'who_sent_budget',
     'unicef_sent_budget',
     'gpei_consolidation',
@@ -38,9 +37,6 @@ export const RRT_REVIEW = [
 
 export const ORPG_REVIEW = [
     'feedback_sent_to_rrt1',
-    'submitted_to_orpg',
-    'feedback_sent_to_rrt2',
-    're_submitted_to_orpg',
     'submission_to_orpg_operations_2',
     'feedback_sent_to_rrt3',
     're_submission_to_orpg_operations_2',
