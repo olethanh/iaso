@@ -1,3 +1,4 @@
+// TODO cleanup unused states when we move to prod
 export const BUDGET_STATES = [
     'budget_requested',
     'who_sent_budget',
@@ -30,23 +31,16 @@ export const BUDGET_REQUEST = [
 
 export const RRT_REVIEW = [
     'submitted_to_rrt',
-    'feedback_sent_to_gpei',
-    're_submitted_to_rrt',
     'submission_to_orpg_operations_1',
 ];
 
 export const ORPG_REVIEW = [
-    'feedback_sent_to_rrt1',
     'submitted_to_orpg',
     'submission_to_orpg_operations_2',
-    'feedback_sent_to_rrt3',
-    're_submission_to_orpg_operations_2',
 ];
 
 export const REVIEW_FOR_APPROVAL = [
     'submitted_for_approval',
-    'feedback_sent_to_orpg_operations_unicef',
-    'feedback_sent_to_orpg_operations_who',
     'approved_by_who',
     'approved_by_unicef',
     'approved',
