@@ -54,6 +54,7 @@ class Project(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     external_token = models.UUIDField(default=uuid4, null=True)
     min_version = models.IntegerField(null=True, blank=False)
+    reject_all_data = models.BooleanField(default=False)
     objects = ProjectManager()
 
     def __str__(self):
