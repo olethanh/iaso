@@ -37,6 +37,7 @@ export const RRT_REVIEW = [
 
 export const ORPG_REVIEW = [
     'feedback_sent_to_rrt1',
+    'submitted_to_orpg',
     'submission_to_orpg_operations_2',
     'feedback_sent_to_rrt3',
     're_submission_to_orpg_operations_2',
