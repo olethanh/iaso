@@ -3,8 +3,9 @@ import React, {
     useState,
     useMemo,
     useCallback,
+    useEffect,
 } from 'react';
-
+import { orderBy } from 'lodash';
 import {
     useSafeIntl,
     ConfirmCancelModal,
@@ -12,30 +13,33 @@ import {
     AddButton,
     LoadingSpinner,
 } from 'bluesquare-components';
-import ArrowRightAltIcon from '@material-ui/icons/ArrowRightAlt';
+import uniqWith from 'lodash/uniqWith';
+import isEqual from 'lodash/isEqual';
 
-import { Grid, Box, makeStyles } from '@material-ui/core';
-
-import InputComponent from '../../../../components/forms/InputComponent';
+import { Box, makeStyles } from '@material-ui/core';
 import { EditIconButton } from '../ModalButtons';
 import { MappingTable } from './MappingTable';
-import { InfoTooltip } from './InfoTooltip';
+import { Popper } from './InfoPopper';
 
-import { useGetForms } from '../../hooks/requests/useGetForms';
 import { useSaveWorkflowChange } from '../../hooks/requests/useSaveWorkflowChange';
 
 import MESSAGES from '../../messages';
 
 import { Change, Mapping, ReferenceForm } from '../../types';
 import { PossibleField } from '../../../forms/types/forms';
-import { useGetPossibleFields } from '../../../forms/hooks/useGetPossibleFields';
+import {
+    FormVersion,
+    useGetPossibleFieldsByFormVersion,
+} from '../../../forms/hooks/useGetPossibleFields';
+import { DropdownOptions } from '../../../../types/utils';
 
 type Props = {
     isOpen: boolean;
     closeDialog: () => void;
     change?: Change;
     versionId: string;
-    targetPossibleFields: PossibleField[];
+    targetPossibleFields?: PossibleField[];
+    targetPossibleFieldsByVersion?: FormVersion[];
     referenceForm?: ReferenceForm;
     changes?: Change[];
 };
@@ -44,31 +48,18 @@ const mapChange = (change?: Change): Mapping[] => {
     let mapArray: Mapping[] = [];
     if (change?.mapping) {
         mapArray = Object.entries(change.mapping).map(([key, value]) => ({
-            target: key,
-            source: value,
+            target: value,
+            source: key,
         }));
     }
     return mapArray;
 };
 
-const useStyles = makeStyles(theme => ({
-    referenceForm: {
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        marginTop: 5,
-        marginLeft: theme.spacing(2),
-        '& span': {
-            fontWeight: 'bold',
-            paddingLeft: theme.spacing(4),
-            paddingRight: theme.spacing(1),
-        },
-    },
-    infoTooltip: {
+const useStyles = makeStyles(() => ({
+    popper: {
         position: 'absolute',
-        right: theme.spacing(2),
-        top: theme.spacing(2),
-        cursor: 'pointer',
+        right: 0,
+        top: 0,
     },
 }));
 
@@ -81,19 +72,26 @@ const Modal: FunctionComponent<Props> = ({
     versionId,
     change,
     targetPossibleFields,
+    targetPossibleFieldsByVersion,
     referenceForm,
     changes,
 }) => {
     const classes: Record<string, string> = useStyles();
     const { formatMessage } = useSafeIntl();
     const [form, setForm] = useState<number | undefined>(change?.form?.id);
+    const [targetVersion, setTargetVersion] = useState<string>('all');
+    const [selectedTargetPossibleFields, setSelectedTargetPossibleFields] =
+        useState<PossibleField[] | undefined>(targetPossibleFields);
+
+    const [sourceVersion, setSourceVersion] = useState<string>('all');
+    const [selectedSourcePossibleFields, setSelectedSourcePossibleFields] =
+        useState<PossibleField[] | undefined>();
+
     const [isTouched, setIsTouched] = useState<boolean>(false);
     const { mutate: saveChange } = useSaveWorkflowChange(
         closeDialog,
         versionId,
     );
-
-    const { data: forms, isLoading: isLoadingForms } = useGetForms();
 
     const [mappingArray, setMappingArray] = useState<Mapping[]>(
         mapChange(change),
@@ -102,7 +100,7 @@ const Modal: FunctionComponent<Props> = ({
         const mappingObject = {};
         mappingArray.forEach(mapping => {
             if (mapping.target && mapping.source) {
-                mappingObject[mapping.target] = mapping.source;
+                mappingObject[mapping.source] = mapping.target;
             }
         });
         saveChange({
@@ -123,27 +121,20 @@ const Modal: FunctionComponent<Props> = ({
         },
         [mappingArray],
     );
-    const formsList = useMemo(
-        () =>
-            forms
-                // remove already selected forms
-                ?.filter(
-                    f =>
-                        !changes?.find(ch => ch.form.id === f.id) ||
-                        change?.form.id === f.id,
-                )
-                .map(f => ({
-                    label: f.name,
-                    value: f.id,
-                })) || [],
-        [change?.form.id, changes, forms],
-    );
 
     const {
-        possibleFields: sourcePossibleFields,
+        formVersions: sourcePossibleFieldsByVersion,
         isFetchingForm: isFetchingSourcePossibleFields,
-    } = useGetPossibleFields(form);
-
+    } = useGetPossibleFieldsByFormVersion(form);
+    const sourcePossibleFields: PossibleField[] = useMemo(() => {
+        if (!sourcePossibleFieldsByVersion) return [];
+        return uniqWith(
+            sourcePossibleFieldsByVersion.flatMap(
+                formVersion => formVersion.possible_fields,
+            ),
+            isEqual,
+        );
+    }, [sourcePossibleFieldsByVersion]);
     const isValidMapping: boolean =
         mappingArray.filter(mapping =>
             sourcePossibleFields.some(
@@ -154,9 +145,82 @@ const Modal: FunctionComponent<Props> = ({
     const allowConfirm =
         isTouched &&
         isValidMapping &&
-        Boolean(form) &&
         mappingArray.length > 0 &&
         !mappingArray.find(mapping => !mapping.target || !mapping.source);
+
+    const getVersionDropdownOptions = useCallback(
+        (versions: FormVersion[]): DropdownOptions<string>[] => {
+            const options =
+                orderBy(
+                    versions,
+                    [version => version.created_at],
+                    ['desc'],
+                ).map((version, index) => ({
+                    label: `${version.version_id}${
+                        index === 0
+                            ? ` (${formatMessage(MESSAGES.latest)})`
+                            : ''
+                    }`,
+                    value: version.version_id,
+                })) || [];
+            options.unshift({
+                label: formatMessage(MESSAGES.allVersions),
+                value: 'all',
+            });
+            return options;
+        },
+        [formatMessage],
+    );
+
+    const sourceVersionsDropdownOptions: DropdownOptions<string>[] = useMemo(
+        () => getVersionDropdownOptions(sourcePossibleFieldsByVersion || []),
+        [getVersionDropdownOptions, sourcePossibleFieldsByVersion],
+    );
+    const targetVersionsDropdownOptions: DropdownOptions<string>[] = useMemo(
+        () => getVersionDropdownOptions(targetPossibleFieldsByVersion || []),
+        [getVersionDropdownOptions, targetPossibleFieldsByVersion],
+    );
+
+    const handleChangeTargetVersion = useCallback(
+        (_, value) => {
+            if (value !== 'all') {
+                setSelectedTargetPossibleFields(
+                    targetPossibleFieldsByVersion?.find(
+                        version => version.version_id === value,
+                    )?.possible_fields || [],
+                );
+            } else {
+                setSelectedTargetPossibleFields(targetPossibleFields);
+            }
+            setTargetVersion(value);
+        },
+        [targetPossibleFields, targetPossibleFieldsByVersion],
+    );
+    const handleChangeSourceVersion = useCallback(
+        (_, value) => {
+            if (value !== 'all') {
+                setSelectedSourcePossibleFields(
+                    sourcePossibleFieldsByVersion?.find(
+                        version => version.version_id === value,
+                    )?.possible_fields || [],
+                );
+            } else {
+                setSelectedSourcePossibleFields(sourcePossibleFields);
+            }
+            setSourceVersion(value);
+        },
+        [sourcePossibleFields, sourcePossibleFieldsByVersion],
+    );
+
+    useEffect(() => {
+        if (
+            (selectedSourcePossibleFields?.length === 0 ||
+                !selectedSourcePossibleFields) &&
+            sourcePossibleFields.length > 0
+        ) {
+            setSelectedSourcePossibleFields(sourcePossibleFields);
+        }
+    }, [selectedSourcePossibleFields, sourcePossibleFields]);
     return (
         <ConfirmCancelModal
             allowConfirm={allowConfirm}
@@ -178,46 +242,38 @@ const Modal: FunctionComponent<Props> = ({
             id="workflow-change"
             onClose={() => null}
         >
-            <Box className={classes.infoTooltip}>
-                <InfoTooltip />
+            <Box className={classes.popper}>
+                <Popper />
             </Box>
 
             {isFetchingSourcePossibleFields && <LoadingSpinner absolute />}
-            <Grid container spacing={2}>
-                <Grid item xs={12} md={5}>
-                    <InputComponent
-                        type="select"
-                        keyValue="forms"
-                        onChange={handleChangeForm}
-                        value={form}
-                        label={MESSAGES.sourceForm}
-                        required
-                        options={formsList}
-                        loading={isLoadingForms}
-                        clearable={false}
-                    />
-                </Grid>
-                <Grid item xs={12} md={7}>
-                    <Box className={classes.referenceForm}>
-                        <ArrowRightAltIcon color="primary" fontSize="large" />
-                        <span>{formatMessage(MESSAGES.targetForm)}:</span>{' '}
-                        {referenceForm?.name}
-                    </Box>
-                </Grid>
-                <Grid item xs={12}>
-                    <MappingTable
-                        setIsTouched={setIsTouched}
-                        mappingArray={mappingArray}
-                        setMappingArray={setMappingArray}
-                        sourcePossibleFields={sourcePossibleFields}
-                        targetPossibleFields={targetPossibleFields}
-                        isFetchingSourcePossibleFields={
-                            isFetchingSourcePossibleFields
-                        }
-                        form={form}
-                    />
-                </Grid>
-            </Grid>
+            <Box position="relative" data-test="change-modal">
+                <MappingTable
+                    setIsTouched={setIsTouched}
+                    mappingArray={mappingArray}
+                    setMappingArray={setMappingArray}
+                    sourcePossibleFields={selectedSourcePossibleFields || []}
+                    targetPossibleFields={selectedTargetPossibleFields || []}
+                    isFetchingSourcePossibleFields={
+                        isFetchingSourcePossibleFields
+                    }
+                    handleChangeForm={handleChangeForm}
+                    changes={changes}
+                    change={change}
+                    form={form}
+                    handleChangeSourceVersion={handleChangeSourceVersion}
+                    sourceVersion={sourceVersion}
+                    sourceVersionsDropdownOptions={
+                        sourceVersionsDropdownOptions
+                    }
+                    handleChangeTargetVersion={handleChangeTargetVersion}
+                    targetVersion={targetVersion}
+                    targetVersionsDropdownOptions={
+                        targetVersionsDropdownOptions
+                    }
+                    referenceForm={referenceForm}
+                />
+            </Box>
         </ConfirmCancelModal>
     );
 };

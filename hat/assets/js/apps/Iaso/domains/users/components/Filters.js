@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -15,7 +15,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import { commonStyles, useSafeIntl } from 'bluesquare-components';
 
 import InputComponent from 'Iaso/components/forms/InputComponent';
-import { redirectTo } from '../../../routing/actions';
+import { redirectTo } from '../../../routing/actions.ts';
 import MESSAGES from '../messages';
 import { useGetPermissionsDropDown } from '../hooks/useGetPermissionsDropdown.ts';
 import { useGetOrgUnitTypes } from '../../orgUnits/hooks/requests/useGetOrgUnitTypes.ts';
@@ -29,6 +29,7 @@ const useStyles = makeStyles(theme => ({
 
 const Filters = ({ baseUrl, params }) => {
     const [filtersUpdated, setFiltersUpdated] = useState(false);
+    const [textSearchError, setTextSearchError] = useState(false);
     const classes = useStyles();
     const [ouParent, setOuParent] = useState(stringToBoolean(params.ouParent));
     const [ouChildren, setOuChildren] = useState(
@@ -47,8 +48,18 @@ const Filters = ({ baseUrl, params }) => {
     const [initialOrgUnitId, setInitialOrgUnitId] = useState(params?.location);
     const { data: dropdown, isFetching } = useGetPermissionsDropDown();
     const { data: initialOrgUnit } = useGetOrgUnit(initialOrgUnitId);
-    const { data: orgUnitTypeDropdown, isFetching: isFetchingOuTypes } =
+    const { data: orgUnitTypes, isFetching: isFetchingOuTypes } =
         useGetOrgUnitTypes();
+
+    const orgUnitTypeDropdown = useMemo(() => {
+        if (!orgUnitTypes?.length) return orgUnitTypes;
+        const options = [...orgUnitTypes];
+        options.push({
+            value: 'unassigned',
+            label: formatMessage(MESSAGES.noTypeAssigned),
+        });
+        return options;
+    }, [formatMessage, orgUnitTypes]);
 
     const theme = useTheme();
     const isLargeLayout = useMediaQuery(theme.breakpoints.up('md'));
@@ -102,6 +113,8 @@ const Filters = ({ baseUrl, params }) => {
                         type="search"
                         label={MESSAGES.search}
                         onEnterPressed={handleSearch}
+                        onErrorChange={setTextSearchError}
+                        blockForbiddenChars
                     />
                     <Box id="ou-tree-input" mb={isLargeLayout ? 0 : -2}>
                         <OrgUnitTreeviewModal
@@ -171,7 +184,7 @@ const Filters = ({ baseUrl, params }) => {
                     <Box mt={2}>
                         <Button
                             data-test="search-button"
-                            disabled={!filtersUpdated}
+                            disabled={textSearchError || !filtersUpdated}
                             variant="contained"
                             className={classes.button}
                             color="primary"

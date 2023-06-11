@@ -1,31 +1,31 @@
 import csv
 import datetime
 import io
-from time import strftime, gmtime
-from typing import List, Any, Union
+from time import gmtime, strftime
+from typing import Any, List, Union
 
 import xlsxwriter  # type: ignore
 from django.core.paginator import Paginator
 from django.db.models import Max, Q
-from django.http import JsonResponse, HttpResponse, StreamingHttpResponse
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend  # type: ignore
-from rest_framework import filters
-from rest_framework import serializers
+from rest_framework import filters, permissions, serializers
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from hat.api.export_utils import Echo, generate_xlsx, iter_items
 from iaso.api.common import (
-    TimestampField,
-    ModelViewSet,
-    DeletionFilterBackend,
-    CONTENT_TYPE_XLSX,
     CONTENT_TYPE_CSV,
+    CONTENT_TYPE_XLSX,
     EXPORTS_DATETIME_FORMAT,
+    DeletionFilterBackend,
+    HasPermission,
+    ModelViewSet,
+    TimestampField,
 )
-from iaso.models import Entity, Instance, EntityType
+from iaso.models import Entity, EntityType, Instance
 
 
 class EntityTypeSerializer(serializers.ModelSerializer):
@@ -41,6 +41,7 @@ class EntityTypeSerializer(serializers.ModelSerializer):
             "account",
             "fields_detail_info_view",
             "fields_list_view",
+            "fields_duplicate_search",
         ]
 
     created_at = TimestampField(read_only=True)
@@ -98,6 +99,12 @@ class EntitySerializer(serializers.ModelSerializer):
 
 
 class EntityTypeViewSet(ModelViewSet):
+    """Entity Type API
+    /api/entitytypes
+    /api/mobile/entitytypes
+    /api/mobile/entitytype [Deprecated] will be removed in the future
+    """
+
     results_key = "types"
     remove_results_key_if_paginated = True
     filter_backends = [filters.OrderingFilter, DjangoFilterBackend]
@@ -116,17 +123,17 @@ class EntityTypeViewSet(ModelViewSet):
 class EntityViewSet(ModelViewSet):
     """Entity API
 
-    list: /api/entity
+    list: /api/entities
 
-    list entity by entity type: /api/entity/?entity_type_id=ids
+    list entity by entity type: /api/entities/?entity_type_id=ids
 
-    details =/api/entity/<id>
+    details =/api/entities/<id>
 
-    export entity list: /api/entity/?xlsx=true
+    export entity list: /api/entities/?xlsx=true
 
-    export entity by entity type: /api/entity/entity_type_ids=ids&?xlsx=true
+    export entity by entity type: /api/entities/entity_type_ids=ids&?xlsx=true
 
-    export entity submissions list: /api/entity/export_entity_submissions_list/?id=id
+    export entity submissions list: /api/entities/export_entity_submissions_list/?id=id
 
     **replace xlsx by csv to export as csv
     """
@@ -134,6 +141,7 @@ class EntityViewSet(ModelViewSet):
     results_key = "entities"
     remove_results_key_if_paginated = True
     filter_backends = [filters.OrderingFilter, DjangoFilterBackend, DeletionFilterBackend]
+    permission_classes = [permissions.IsAuthenticated, HasPermission("menupermissions.iaso_entities")]  # type: ignore
 
     def get_serializer_class(self):
         return EntitySerializer

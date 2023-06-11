@@ -2,10 +2,11 @@
 
 import listFixture from '../../fixtures/forms/list.json';
 import superUser from '../../fixtures/profiles/me/superuser.json';
+import { search, searchWithForbiddenChars } from '../../constants/search';
+import { testSearchField } from '../../support/testSearchField';
 
 const siteBaseUrl = Cypress.env('siteBaseUrl');
 
-const search = 'ZELDA';
 const baseUrl = `${siteBaseUrl}/dashboard/forms/list/`;
 
 let interceptFlag = false;
@@ -28,9 +29,11 @@ const goToPage = (
     };
     if (formQuery) {
         cy.intercept({ ...options, query: formQuery }, req => {
-            req.continue(res => {
-                interceptFlag = true;
-                res.send({ fixture });
+            req.on('response', response => {
+                if (response.statusMessage === 'OK') {
+                    interceptFlag = true;
+                    response.send({ fixture });
+                }
             });
         }).as('getForms');
     } else {
@@ -58,7 +61,7 @@ describe('Forms', () => {
                 is_superuser: false,
             });
             const errorCode = cy.get('#error-code');
-            errorCode.should('contain', '401');
+            errorCode.should('contain', 'Awaiting Access Permissions');
         });
 
         it('click on create button should redirect to form creation url', () => {
@@ -74,13 +77,7 @@ describe('Forms', () => {
             beforeEach(() => {
                 goToPage();
             });
-            it('should enabled search button', () => {
-                cy.get('[data-test="search-button"]')
-                    .as('search-button')
-                    .should('be.disabled');
-                cy.get('#search-search').type(search);
-                cy.get('@search-button').should('not.be.disabled');
-            });
+            testSearchField(search, searchWithForbiddenChars);
         });
         describe('Show deleted checkbox', () => {
             beforeEach(() => {

@@ -21,7 +21,6 @@ export const RoundForm = ({ roundNumber }) => {
                     label={formatMessage(MESSAGES.startDate)}
                     name={`rounds[${roundIndex}].started_at`}
                     component={DateInput}
-                    required
                     fullWidth
                 />
 
@@ -29,7 +28,6 @@ export const RoundForm = ({ roundNumber }) => {
                     label={formatMessage(MESSAGES.endDate)}
                     name={`rounds[${roundIndex}].ended_at`}
                     component={DateInput}
-                    required
                     fullWidth
                 />
                 <Field
@@ -73,6 +71,14 @@ export const RoundForm = ({ roundNumber }) => {
                 />
             </Grid>
             <Grid xs={12} md={6} item>
+                <Field
+                    label={formatMessage(
+                        MESSAGES.percentage_covered_target_population,
+                    )}
+                    name={`rounds[${roundIndex}].percentage_covered_target_population`}
+                    component={TextInput}
+                    className={classes.input}
+                />
                 <Field
                     label={formatMessage(MESSAGES.lqas_district_passing)}
                     name={`rounds[${roundIndex}].lqas_district_passing`}

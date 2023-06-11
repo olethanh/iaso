@@ -5,15 +5,17 @@ and containing a list of e-mail as json.
 e.g. ['test@bluesquarehub.com']
 """
 import logging
+
 from django.core.mail import send_mail
-
-from plugins.polio.preparedness.summary import get_or_set_preparedness_cache_for_round
-
 from django.template import Engine, Context
+
 from plugins.polio.models import Config
+from plugins.polio.preparedness.summary import get_or_set_preparedness_cache_for_round
 
 
 def valid_indicator(x):
+    if x is None:
+        return True
     if isinstance(x, str):
         return x.strip() in ["NA", "N/A"]
     if not isinstance(x, (int, float)):

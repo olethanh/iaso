@@ -1,7 +1,8 @@
-from rest_framework.response import Response
-from rest_framework import status, permissions
 from django.db.models import Q
-from iaso.models import OrgUnitType, Project, DataSource, SourceVersion
+from rest_framework import status, permissions
+from rest_framework.response import Response
+
+from iaso.models import OrgUnitType
 from .serializers import OrgUnitTypeSerializer
 from ..common import ModelViewSet
 
@@ -34,4 +35,6 @@ class OrgUnitTypeViewSet(ModelViewSet):
         if search:
             queryset = queryset.filter(Q(name__icontains=search) | Q(short_name__icontains=search))
 
-        return queryset.order_by("depth").distinct().order_by("name")
+        orders = self.request.query_params.get("order", "name").split(",")
+
+        return queryset.order_by("depth").distinct().order_by(*orders)

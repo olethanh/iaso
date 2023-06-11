@@ -1,12 +1,12 @@
-import React, { FunctionComponent, useRef, useState, useEffect } from 'react';
+import React, { FunctionComponent, useRef, useState, useMemo } from 'react';
 import {
-    Map,
-    TileLayer,
+    MapContainer,
     GeoJSON,
     Pane,
     Tooltip,
     ScaleControl,
 } from 'react-leaflet';
+
 import { Box } from '@material-ui/core';
 import {
     // @ts-ignore
@@ -15,7 +15,10 @@ import {
 
 import { Locations, OrgUnitMarker, OrgUnitShape } from '../types/locations';
 
-import { TilesSwitch, Tile } from '../../../components/maps/tools/TileSwitch';
+import {
+    Tile,
+    TilesSwitchDialog,
+} from '../../../components/maps/tools/TilesSwitchDialog';
 import { MapLegend } from './MapLegend';
 import { MapInfo } from './MapInfo';
 import MarkersListComponent from '../../../components/maps/markers/MarkersListComponent';
@@ -29,15 +32,17 @@ import {
 import tiles from '../../../constants/mapTiles';
 
 import {
-    ZoomControl,
+    Bounds,
     circleColorMarkerOptions,
     getShapesBounds,
     getLatLngBounds,
-} from '../../../utils/mapUtils';
+} from '../../../utils/map/mapUtils';
 import { Profile } from '../../../utils/usersUtils';
 
 import { DropdownTeamsOptions } from '../types/team';
 import { AssignmentsApi } from '../types/assigment';
+import { CustomZoomControl } from '../../../components/maps/tools/CustomZoomControl';
+import { CustomTileLayer } from '../../../components/maps/tools/CustomTileLayer';
 
 const defaultViewport = {
     center: [1, 20],
@@ -104,7 +109,6 @@ export const AssignmentsMap: FunctionComponent<Props> = ({
     profiles,
 }) => {
     const mapContainer: any = useRef();
-    const map: any = useRef();
     const [selectedLocation, setSelectedLocation] = useState<
         OrgUnitShape | OrgUnitMarker | undefined
     >(undefined);
@@ -120,24 +124,12 @@ export const AssignmentsMap: FunctionComponent<Props> = ({
         setSelectedLocationAlreadyeAssigned,
     ] = useState<boolean>(false);
     const [currentTile, setCurrentTile] = useState<Tile>(tiles.osm);
-    const fitToBounds = (
-        newLocations: Locations,
-        newParentLocations: OrgUnitShape[] | undefined,
-    ) => {
-        const bounds = getLocationsBounds(newLocations, newParentLocations);
-        if (
-            newLocations.shapes.all.length > 0 ||
-            newLocations.markers.all.length > 0
-        ) {
-            if (bounds && map?.current) {
-                try {
-                    map.current.leafletElement.fitBounds(bounds, boundsOptions);
-                } catch (e) {
-                    console.warn(e);
-                }
-            }
-        }
-    };
+
+    const bounds: Bounds | undefined = useMemo(
+        () => locations && getLocationsBounds(locations, parentLocations),
+        [locations, parentLocations],
+    );
+
     const onClick = (selecteOrgunit: OrgUnitShape | OrgUnitMarker) => {
         if (!selectedLocation) {
             handleClick(selecteOrgunit);
@@ -179,16 +171,15 @@ export const AssignmentsMap: FunctionComponent<Props> = ({
         });
     };
 
-    useEffect(() => {
-        if (!isFetchingLocations && !isFetchingParentLocations && locations) {
-            fitToBounds(locations, parentLocations);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isFetchingLocations, locations, isFetchingParentLocations]);
     const isLoading = isFetchingLocations || isFetchingParentLocations;
+
     return (
         <section ref={mapContainer}>
             <Box position="relative">
+                <TilesSwitchDialog
+                    currentTile={currentTile}
+                    setCurrentTile={setCurrentTile}
+                />
                 <MapLegend />
                 <MapInfo />
                 {selectedLocation && (
@@ -204,17 +195,14 @@ export const AssignmentsMap: FunctionComponent<Props> = ({
                         popupPosition={popupPosition}
                     />
                 )}
-                <TilesSwitch
-                    currentTile={currentTile}
-                    setCurrentTile={setCurrentTile}
-                />
                 {isLoading && <LoadingSpinner absolute />}
-                <Map
+                <MapContainer
+                    doubleClickZoom
                     isLoading={isLoading}
-                    zoomSnap={0.25}
                     maxZoom={currentTile.maxZoom}
-                    ref={map}
                     style={{ height: '72vh' }}
+                    bounds={bounds}
+                    boundsOptions={boundsOptions}
                     center={defaultViewport.center}
                     zoom={defaultViewport.zoom}
                     scrollWheelZoom={false}
@@ -222,18 +210,15 @@ export const AssignmentsMap: FunctionComponent<Props> = ({
                     contextmenu
                     onMovestart={() => setSelectedLocation(undefined)}
                 >
-                    <ScaleControl imperial={false} />
-                    <TileLayer
-                        attribution={currentTile.attribution ?? ''}
-                        url={currentTile.url}
+                    <CustomZoomControl
+                        bounds={bounds}
+                        boundsOptions={boundsOptions}
+                        fitOnLoad
                     />
+                    <ScaleControl imperial={false} />
+                    <CustomTileLayer currentTile={currentTile} />
                     {locations && (
                         <>
-                            <ZoomControl
-                                fitToBounds={() =>
-                                    fitToBounds(locations, parentLocations)
-                                }
-                            />
                             <Pane name="shapes-unselected-already-assigned">
                                 {locations.shapes.unselected
                                     .filter(
@@ -243,6 +228,7 @@ export const AssignmentsMap: FunctionComponent<Props> = ({
                                     .map(shape => {
                                         return (
                                             <GeoJSON
+                                                // @ts-ignore TODO: fix this type problem
                                                 onEachFeature={(_, layer) =>
                                                     onEachFeature(
                                                         layer,
@@ -268,11 +254,14 @@ export const AssignmentsMap: FunctionComponent<Props> = ({
                                     )
                                     .map(shape => (
                                         <GeoJSON
+                                            // @ts-ignore TODO: fix this type problem
                                             onEachFeature={(_, layer) =>
                                                 onEachFeature(layer, shape)
                                             }
+                                            eventHandlers={{
+                                                click: () => onClick(shape),
+                                            }}
                                             key={shape.id}
-                                            onClick={() => onClick(shape)}
                                             data={shape.geoJson}
                                             style={() => ({
                                                 color: unSelectedColor,
@@ -283,11 +272,14 @@ export const AssignmentsMap: FunctionComponent<Props> = ({
                             <Pane name="shapes-selected">
                                 {locations.shapes.selected.map(shape => (
                                     <GeoJSON
+                                        // @ts-ignore TODO: fix this type problem
                                         onEachFeature={(_, layer) =>
                                             onEachFeature(layer, shape)
                                         }
                                         key={shape.id}
-                                        onClick={() => onClick(shape)}
+                                        eventHandlers={{
+                                            click: () => onClick(shape),
+                                        }}
                                         data={shape.geoJson}
                                         style={() => ({
                                             color: shape.color,
@@ -358,21 +350,27 @@ export const AssignmentsMap: FunctionComponent<Props> = ({
                                     {parentLocations.map(shape => (
                                         <GeoJSON
                                             key={shape.id}
-                                            onClick={() => onParentClick(shape)}
+                                            eventHandlers={{
+                                                click: () =>
+                                                    onParentClick(shape),
+                                            }}
                                             data={shape.geoJson}
-                                            style={() => ({
+                                            // @ts-ignore TODO: fix this type problem
+                                            style={{
                                                 color: parentColor,
                                                 fillOpacity: '0',
-                                            })}
+                                            }}
                                         >
-                                            <Tooltip>{shape.name}</Tooltip>
+                                            <Tooltip pane="popupPane">
+                                                {shape.name}
+                                            </Tooltip>
                                         </GeoJSON>
                                     ))}
                                 </Pane>
                             )}
                         </>
                     )}
-                </Map>
+                </MapContainer>
             </Box>
         </section>
     );

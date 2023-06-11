@@ -1,5 +1,5 @@
 from iaso.models import WorkflowChange
-from iaso.tests.api.workflows.base import BaseWorkflowsAPITestCase, var_dump
+from iaso.tests.api.workflows.base import BaseWorkflowsAPITestCase
 
 BASE_API = "/api/workflowchanges/"
 
@@ -86,7 +86,7 @@ class WorkflowsChangesAPITestCase(BaseWorkflowsAPITestCase):
         )
         assert response.data["form"][0].code == "invalid"
 
-        assert "Question data does not exist in source form" in str(response.data["mapping"][0])
+        assert "Question fake does not exist in source form" in str(response.data["mapping"][0])
         assert response.data["mapping"][0].code == "invalid"
 
     def test_should_field_not_exist_on_reference_form(self):
@@ -101,7 +101,7 @@ class WorkflowsChangesAPITestCase(BaseWorkflowsAPITestCase):
         )
 
         self.assertJSONResponse(response, 400)
-        assert "Question XXXX does not exist in reference form" in str(response.data["mapping"][0])
+        assert "Question XXXX does not exist in source form" in str(response.data["mapping"][0])
         assert response.data["mapping"][0].code == "invalid"
 
     def test_delete_non_existing_should_fail(self):
@@ -152,3 +152,48 @@ class WorkflowsChangesAPITestCase(BaseWorkflowsAPITestCase):
 
         self.assertJSONResponse(response_delete, 204)
         assert response_delete.data is None
+
+    def test_should_fail_field_not_mapped_to_proper_type(self):
+        self.client.force_authenticate(self.blue_adult_1)
+        response = self.client.post(
+            f"{BASE_API}?version_id={self.workflow_version_et_adults_blue_draft.pk}",
+            format="json",
+            data={
+                "form": self.form_adults_blue_2.pk,
+                "mapping": {"integer_field": "mon_champ"},
+            },  # both forms have a mon_champ field
+        )
+
+        self.assertJSONResponse(response, 400)
+        assert "Question integer_field and mon_champ do not have the same type" in str(response.data["mapping"][0])
+        assert response.data["mapping"][0].code == "invalid"
+
+    def test_should_succeed_calculate_to_any_type(self):
+        self.client.force_authenticate(self.blue_adult_1)
+        response = self.client.post(
+            f"{BASE_API}?version_id={self.workflow_version_et_adults_blue_draft.pk}",
+            format="json",
+            data={
+                "form": self.form_adults_blue_2.pk,
+                "mapping": {"calculate_one": "integer_field"},
+            },  # both forms have a mon_champ field
+        )
+
+        self.assertJSONResponse(response, 200)
+        assert response.data["form"]["id"] == self.form_adults_blue_2.pk
+        assert response.data["mapping"] == {"calculate_one": "integer_field"}
+
+    def test_should_succeed_any_type_to_calculate(self):
+        self.client.force_authenticate(self.blue_adult_1)
+        response = self.client.post(
+            f"{BASE_API}?version_id={self.workflow_version_et_adults_blue_draft.pk}",
+            format="json",
+            data={
+                "form": self.form_adults_blue_2.pk,
+                "mapping": {"integer_field": "calculate_two"},
+            },  # both forms have a mon_champ field
+        )
+
+        self.assertJSONResponse(response, 200)
+        assert response.data["form"]["id"] == self.form_adults_blue_2.pk
+        assert response.data["mapping"] == {"integer_field": "calculate_two"}

@@ -1,3 +1,7 @@
+from django.shortcuts import get_object_or_404
+from rest_framework import serializers
+
+import iaso.api.workflows.utils as utils
 from iaso.models import (
     Form,
     EntityType,
@@ -7,10 +11,8 @@ from iaso.models import (
     WorkflowFollowup,
 )
 from iaso.models.workflow import WorkflowVersionsStatus
-from rest_framework import serializers
-from django.shortcuts import get_object_or_404
 
-import iaso.api.workflows.utils as utils
+CALCULATE_TYPE = "calculate"
 
 
 class FormNestedSerializer(serializers.ModelSerializer):
@@ -111,22 +113,21 @@ class WorkflowChangeCreateSerializer(serializers.Serializer):
         if len(mapping.values()) != len(list(set(mapping.values()))):
             raise serializers.ValidationError(f"Mapping cannot have two identical values")
 
-        for key, value in mapping.items():
-
-            q = find_question_by_name(value, s_questions)
+        for _source, _target in mapping.items():
+            q = find_question_by_name(_source, s_questions)
             if q is None:
-                raise serializers.ValidationError(f"Question {value} does not exist in source form")
+                raise serializers.ValidationError(f"Question {_source} does not exist in source form")
             else:
                 s_type = q["type"]
 
-            q = find_question_by_name(key, r_questions)
+            q = find_question_by_name(_target, r_questions)
             if q is None:
-                raise serializers.ValidationError(f"Question {key} does not exist in reference form")
+                raise serializers.ValidationError(f"Question {_target} does not exist in reference/target form")
             else:
                 r_type = q["type"]
 
-            if s_type != r_type:
-                raise serializers.ValidationError(f"Question {key} and {value} do not have the same type")
+            if s_type != r_type and s_type != CALCULATE_TYPE and r_type != CALCULATE_TYPE:
+                raise serializers.ValidationError(f"Question {_source} and {_target} do not have the same type")
 
         return mapping
 
@@ -139,7 +140,7 @@ class WorkflowChangeCreateSerializer(serializers.Serializer):
         if WorkflowChange.objects.filter(workflow_version=wfv, form=form).exists():
             raise serializers.ValidationError(f"WorkflowChange for form {form.id} already exists !")
 
-        # If it does, we return a error
+        # If it does, we return an error
         # If it doesn't, we create the change
 
         wc = WorkflowChange.objects.create(
@@ -260,8 +261,12 @@ class WorkflowVersionDetailSerializer(serializers.ModelSerializer):
     version_id = serializers.IntegerField(source="pk")
     reference_form = FormNestedSerializer()
     entity_type = EntityTypeNestedSerializer(source="workflow.entity_type")
-    changes = WorkflowChangeSerializer(many=True)
-    follow_ups = WorkflowFollowupSerializer(many=True)
+    follow_ups = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_follow_ups(obj):
+        sorted_obj = obj.follow_ups.all().order_by("order")
+        return WorkflowFollowupSerializer(sorted_obj, many=True).data
 
     class Meta:
         model = WorkflowVersion
@@ -274,7 +279,6 @@ class WorkflowVersionDetailSerializer(serializers.ModelSerializer):
             "reference_form",
             "created_at",
             "updated_at",
-            "changes",
             "follow_ups",
         ]
 
@@ -301,7 +305,6 @@ class WorkflowPostSerializer(serializers.Serializer):
         wf, wf_created = Workflow.objects.get_or_create(entity_type_id=entity_type_id)
 
         wfv = WorkflowVersion.objects.create(workflow=wf)
-        et = EntityType.objects.get(pk=entity_type_id)
         if "name" in validated_data:
             wfv.name = validated_data["name"]
         wfv.save()
@@ -309,7 +312,6 @@ class WorkflowPostSerializer(serializers.Serializer):
 
 
 class WorkflowPartialUpdateSerializer(serializers.Serializer):
-
     status = serializers.CharField(required=False)
     name = serializers.CharField(required=False)
 

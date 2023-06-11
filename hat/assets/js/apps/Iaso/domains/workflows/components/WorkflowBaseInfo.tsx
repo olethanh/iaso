@@ -52,21 +52,10 @@ export const WorkflowBaseInfo: FunctionComponent<Props> = ({
     const { formatMessage } = useSafeIntl();
     return (
         <>
-            {workflowVersion?.status === 'DRAFT' && (
-                <>
-                    <DetailsForm workflowVersion={workflowVersion} />
-                    <Divider />
-                </>
-            )}
-            <Table size="small">
+            <DetailsForm workflowVersion={workflowVersion} />
+            <Divider />
+            <Table size="small" data-test="workflow-base-info">
                 <TableBody>
-                    {workflowVersion?.status &&
-                        workflowVersion?.status !== 'DRAFT' && (
-                            <Row
-                                label={formatMessage(MESSAGES.name)}
-                                value={workflowVersion?.name}
-                            />
-                        )}
                     <Row
                         label={formatMessage(MESSAGES.type)}
                         value={workflowVersion?.entity_type.name}
@@ -109,6 +98,9 @@ export const WorkflowBaseInfo: FunctionComponent<Props> = ({
                         <PublishVersionModal
                             workflowVersion={workflowVersion}
                             invalidateQueryKey="workflowVersion"
+                            iconProps={{
+                                dataTestId: 'publish-workflow-button',
+                            }}
                         />
                     </Box>
                 </>

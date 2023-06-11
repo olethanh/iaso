@@ -1,11 +1,9 @@
-from rest_framework import serializers
-from django.http import Http404
-from rest_framework import status
-from rest_framework.response import Response
-from ..projects import ProjectSerializer
-from iaso.models import Project, FeatureFlag, Form
-from hat.audit import models as audit_models
 import logging
+
+from rest_framework import serializers
+
+from iaso.models import Project, FeatureFlag, Form
+from ..projects import ProjectSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +79,6 @@ class AppSerializer(ProjectSerializer):
         return new_app
 
     def update(self, instance, validated_data):
-
         feature_flags = validated_data.pop("feature_flags", None)
         needs_authentication = validated_data.pop("needs_authentication", None)
         forms = validated_data.pop("forms", None)

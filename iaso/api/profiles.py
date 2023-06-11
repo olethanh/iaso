@@ -1,22 +1,22 @@
+from django.conf import settings
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.models import Permission
+from django.contrib.auth.models import User
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
-
-from rest_framework import viewsets, permissions, serializers
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
+from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
-from django.utils.translation import gettext as _
-from django.core.mail import send_mail
-from django.conf import settings
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from iaso.models import Profile, OrgUnit
-from django.utils.http import urlsafe_base64_encode
-from django.contrib.auth.models import Permission
-from django.contrib.auth.models import User
-from django.utils.encoding import force_bytes
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+from django.utils.translation import gettext as _
+from rest_framework import viewsets, permissions
+from rest_framework.response import Response
+
+from iaso.models import Profile, OrgUnit
 
 
 class HasProfilePermission(permissions.BasePermission):
@@ -113,7 +113,6 @@ class ProfilesViewSet(viewsets.ViewSet):
                 )
 
             if parent_ou and children_ou:
-
                 if no_parent_ou:
                     queryset_parent = self.get_queryset().filter(user__iaso_profile__org_units__pk=location)
                 else:
@@ -131,7 +130,10 @@ class ProfilesViewSet(viewsets.ViewSet):
                 queryset = queryset_current | queryset_parent | queryset_children
 
         if org_unit_type:
-            queryset = queryset.filter(user__iaso_profile__org_units__org_unit_type__pk=org_unit_type).distinct()
+            if org_unit_type == "unassigned":
+                queryset = queryset.filter(user__iaso_profile__org_units__org_unit_type__pk=None).distinct()
+            else:
+                queryset = queryset.filter(user__iaso_profile__org_units__org_unit_type__pk=org_unit_type).distinct()
 
         if limit:
             queryset = queryset.order_by(*orders)
@@ -165,7 +167,6 @@ class ProfilesViewSet(viewsets.ViewSet):
     def partial_update(self, request, pk=None):
         if pk == "me":
             # allow user to change his own language
-            user = request.user
             profile = request.user.iaso_profile
             if "home_page" in request.data:
                 profile.home_page = request.data["home_page"]
@@ -198,7 +199,7 @@ class ProfilesViewSet(viewsets.ViewSet):
         user.save()
 
         if password and request.user == user:
-            # update session hash if you changed your own password so you don't get unlogged
+            # update session hash if you changed your own password, so you don't get unlogged
             # https://docs.djangoproject.com/en/3.2/topics/auth/default/#session-invalidation-on-password-change
             update_session_auth_hash(request, user)
 
@@ -274,7 +275,7 @@ class ProfilesViewSet(viewsets.ViewSet):
         if permissions != []:
             user.save()
 
-        # Create a iaso profile for the new user and attach it to the same account
+        # Create an Iaso profile for the new user and attach it to the same account
         # as the currently authenticated user
         current_profile = request.user.iaso_profile
         user.profile = Profile.objects.create(

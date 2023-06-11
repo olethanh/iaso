@@ -1,10 +1,10 @@
 import typing
-from django.core.exceptions import PermissionDenied
+
 from rest_framework import serializers, permissions
 
-from .common import ModelViewSet, HasPermission
-from iaso.models import ExportRequest, Form, DERIVED
 from iaso.dhis2.derived_instance_generator import generate_instances  # type: ignore
+from iaso.models import ExportRequest, Form, DERIVED
+from .common import ModelViewSet, HasPermission
 
 
 class DerivedInstanceSerializer(serializers.Serializer):
@@ -16,7 +16,6 @@ class DerivedInstanceSerializer(serializers.Serializer):
         return {"periods": periods, "form_ids": form_ids}
 
     def create(self, validated_data):
-
         forms = Form.objects.filter(pk__in=validated_data["form_ids"])
         profile = self.context["request"].user.iaso_profile
         forms = forms.filter(projects__account=profile.account)
