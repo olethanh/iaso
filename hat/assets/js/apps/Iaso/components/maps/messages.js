@@ -33,6 +33,10 @@ const MESSAGES = defineMessages({
         id: 'iaso.map.title.markerClustering',
         defaultMessage: 'Clustering',
     },
+    shapeOpacity: {
+        id: 'iaso.map.title.shapeOpacity',
+        defaultMessage: 'Shape opacity',
+    },
 });
 
 export default MESSAGES;

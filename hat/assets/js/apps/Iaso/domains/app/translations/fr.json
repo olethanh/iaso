@@ -641,6 +641,7 @@
     "iaso.map.shape.editCatchmentDisabled": "L'édition du rayon est désactivée sur ce compte",
     "iaso.map.shape.editLocationDisabled": "L'édition de la localisation est désactivée sur ce compte",
     "iaso.map.title.markerClustering": "Regroupement",
+    "iaso.map.title.shapeOpacity": "Opacité des territoires",
     "iaso.mapping.mappingType": "Type de correspondance",
     "iaso.mappings.changeMapping": "Changer pour une correspondance existante :",
     "iaso.mappings.confirm": "Confirmer",
