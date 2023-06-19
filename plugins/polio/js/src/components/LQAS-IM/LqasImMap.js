@@ -1,9 +1,10 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { oneOf, string, array, number, bool, object } from 'prop-types';
 import { Box } from '@material-ui/core';
 import { useSafeIntl, LoadingSpinner } from 'bluesquare-components';
 import { isEqual } from 'lodash';
 import { any } from 'lodash/fp';
+import { OpacitySlider } from '../../../../../../hat/assets/js/apps/Iaso/components/maps/tools/OpacitySlider.tsx';
 import { MapComponent } from '../MapComponent/MapComponent';
 import { MapLegend } from '../MapComponent/MapLegend';
 import { MapLegendContainer } from '../MapComponent/MapLegendContainer';
@@ -27,7 +28,7 @@ import {
     defaultShapeStyle,
 } from '../../utils/index';
 import MESSAGES from '../../constants/messages';
-import { useGetGeoJson } from '../../hooks/useGetGeoJson';
+import { useGetGeoJson } from '../../hooks/useGetGeoJson.ts';
 import { ScopeAndDNFDisclaimer } from './ScopeAndDNFDisclaimer.tsx';
 
 const defaultShapes = [];
@@ -49,7 +50,7 @@ export const LqasImMap = ({
         data: regionShapes = defaultShapes,
         isFetching: isFetchingRegions,
     } = useGetGeoJson(countryId, 'REGION');
-
+    const [opacity, setOpacity] = useState(0.8);
     const legendItems = useMemo(() => {
         if (type === 'lqas') {
             return makeLqasMapLegendItems(formatMessage)(
@@ -104,9 +105,15 @@ export const LqasImMap = ({
         shape => {
             const districtColors =
                 type === 'lqas' ? lqasDistrictColors : imDistrictColors;
+            if (shape.status !== IN_SCOPE) {
+                return {
+                    ...districtColors[shape.status],
+                    fillOpacity: opacity,
+                };
+            }
             return districtColors[shape.status];
         },
-        [type],
+        [type, opacity],
     );
 
     // eslint-disable-next-line no-unused-vars
@@ -126,6 +133,7 @@ export const LqasImMap = ({
                         legendItems={legendItems}
                         width="lg"
                     />
+                    <OpacitySlider opacity={opacity} setOpacity={setOpacity} />
                 </MapLegendContainer>
                 {/* Showing spinner on isFetching alone would make the map seem like it's loading before the user has chosen a country and campaign */}
                 {(isFetching || isFetchingGeoJson || isFetchingRegions) && (
