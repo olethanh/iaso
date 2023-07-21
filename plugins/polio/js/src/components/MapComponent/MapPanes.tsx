@@ -6,6 +6,7 @@ import { MapColor, Shape } from '../../constants/types';
 import { findBackgroundShape } from './utils';
 
 type Props = {
+    key?: any;
     mainLayer?: Shape[];
     backgroundLayer?: Shape[];
     // eslint-disable-next-line no-unused-vars
@@ -22,6 +23,7 @@ type Props = {
 };
 
 export const MapPanes: FunctionComponent<Props> = ({
+    key = '',
     mainLayer,
     backgroundLayer,
     getMainLayerStyle = () => null,
@@ -38,7 +40,7 @@ export const MapPanes: FunctionComponent<Props> = ({
                 {(backgroundLayer?.length ?? 0) > 0 &&
                     backgroundLayer?.map(shape => (
                         <GeoJSON
-                            key={shape.id}
+                            key={`${key}${shape.id}`}
                             data={shape.geo_json}
                             // @ts-ignore
                             style={() => getBackgroundLayerStyle(shape)}
@@ -55,8 +57,8 @@ export const MapPanes: FunctionComponent<Props> = ({
                                 // @ts-ignore
                                 shape?.status
                                     ? // @ts-ignore
-                                      `${shape.status}-${shape.id}`
-                                    : shape.id
+                                      `${shape.status}-${shape.id}-${key}`
+                                    : `${shape.id}-${key}`
                             }
                             data={shape.geo_json}
                             // @ts-ignore
