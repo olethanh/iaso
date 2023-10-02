@@ -92,3 +92,10 @@ SQLAlchemy==2.0.19
 
 django-celery-results==2.4.0
 django-celery-beat==2.5.0
+
+# Trypelim plugin
+django-pg-utils==0.1.5
+django-rq==2.8.1
+rq==1.15.1
+rq-scheduler==0.13
+tsp-solver2==0.4.1
