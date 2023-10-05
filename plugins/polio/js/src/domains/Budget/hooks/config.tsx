@@ -79,9 +79,19 @@ export const useBudgetColumns = (): Column[] => {
                 sortable: true,
                 accessor: 'processes',
                 Cell: settings => {
-                    console.log('settings', settings);
-                    if (settings.value.length === 0) return '-';
-                    return 'ROUNDS';
+                    if (settings.value.length === 0) return '--';
+                    return settings.value
+                        .map(proccess =>
+                            proccess.rounds
+                                .map(
+                                    roundNumber =>
+                                        `${formatMessage(
+                                            MESSAGES.round,
+                                        )} ${roundNumber}`,
+                                )
+                                .join(', '),
+                        )
+                        .join(', ');
                 },
             },
             {
