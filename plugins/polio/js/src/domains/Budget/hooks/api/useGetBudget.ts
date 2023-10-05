@@ -59,7 +59,7 @@ export const useGetBudgets = (options: Option): any => {
         budget_current_state_key__in: options.budget_current_state_key__in,
         country__id__in: options.country__id__in,
         orgUnitGroups: options.orgUnitGroups,
-        fields: 'id,obr_name,country_name,current_state,cvdpv2_notified_at,possible_states,budget_last_updated_at',
+        fields: 'id,obr_name,country_name,current_state,cvdpv2_notified_at,possible_states,budget_last_updated_at,processes',
     };
 
     return useSnackQuery({

@@ -75,6 +75,16 @@ export const useBudgetColumns = (): Column[] => {
                 Cell: DateCell,
             },
             {
+                Header: formatMessage(MESSAGES.rounds),
+                sortable: true,
+                accessor: 'processes',
+                Cell: settings => {
+                    console.log('settings', settings);
+                    if (settings.value.length === 0) return '-';
+                    return 'ROUNDS';
+                },
+            },
+            {
                 Header: formatMessage(MESSAGES.actions),
                 accessor: 'id',
                 sortable: false,
