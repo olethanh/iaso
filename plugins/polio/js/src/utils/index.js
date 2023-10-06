@@ -29,6 +29,7 @@ export const makeCampaignsDropDown = campaigns =>
             return {
                 label: campaign.obr_name,
                 value: campaign.obr_name,
+                original: campaign,
             };
         })
         .sort(sortCampaignNames);

@@ -33,6 +33,7 @@ import { handleTableDeepLink } from '../../../../../../hat/assets/js/apps/Iaso/u
 import { useStyles } from '../../styles/theme';
 import { BUDGET } from '../../constants/routes';
 import MESSAGES from '../../constants/messages';
+import { AddProcessDialog } from './Processes/Dialog';
 
 type Props = {
     router: any;
@@ -144,6 +145,16 @@ export const BudgetList: FunctionComponent<Props> = ({ router }) => {
                             <CsvButton
                                 csvUrl={`/api/polio/budget/export_csv/?${csvParams}`}
                             />
+                            <Box ml={2} display="inline-block">
+                                <AddProcessDialog
+                                    iconProps={{
+                                        message: MESSAGES.addProcess,
+                                    }}
+                                    titleMessage={formatMessage(
+                                        MESSAGES.addProcess,
+                                    )}
+                                />
+                            </Box>
                         </Box>
 
                         <TableWithDeepLink
@@ -158,6 +169,7 @@ export const BudgetList: FunctionComponent<Props> = ({ router }) => {
                                 loading: isFetching,
                                 apiParams,
                             }}
+                            columnSelectorEnabled={false}
                         />
                     </>
                 )}

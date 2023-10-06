@@ -9,7 +9,7 @@ import { useFilterState } from '../../../../../../hat/assets/js/apps/Iaso/hooks/
 import MESSAGES from '../../constants/messages';
 import { BUDGET } from '../../constants/routes';
 import { DropdownOptions } from '../../../../../../hat/assets/js/apps/Iaso/types/utils';
-import { useGetCountries } from '../../hooks/useGetCountries';
+import { useGetCountriesDropdown } from '../../hooks/useGetCountriesDropdown';
 import { useGetGroupDropdown } from '../../../../../../hat/assets/js/apps/Iaso/domains/orgUnits/hooks/requests/useGetGroups';
 
 type Props = {
@@ -39,10 +39,10 @@ export const BudgetFilters: FunctionComponent<Props> = ({
     const [textSearchError, setTextSearchError] = useState<boolean>(false);
     const theme = useTheme();
     const isXSLayout = useMediaQuery(theme.breakpoints.down('xs'));
-    const { data, isFetching: isFetchingCountries } = useGetCountries();
+    const { data: countriesList, isFetching: isFetchingCountries } =
+        useGetCountriesDropdown();
     const { data: groupedOrgUnits, isFetching: isFetchingGroupedOrgUnits } =
         useGetGroupDropdown({ blockOfCountries: 'True' });
-    const countriesList = (data && data.orgUnits) || [];
     return (
         <Box mb={4}>
             <Grid container spacing={isXSLayout ? 0 : 2}>
@@ -89,10 +89,7 @@ export const BudgetFilters: FunctionComponent<Props> = ({
                         onChange={handleChange}
                         value={filters.country__id__in}
                         type="select"
-                        options={countriesList.map(c => ({
-                            label: c.name,
-                            value: c.id,
-                        }))}
+                        options={countriesList}
                         label={MESSAGES.country}
                     />
                 </Grid>

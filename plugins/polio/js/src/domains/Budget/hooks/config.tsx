@@ -76,7 +76,7 @@ export const useBudgetColumns = (): Column[] => {
             },
             {
                 Header: formatMessage(MESSAGES.rounds),
-                sortable: true,
+                sortable: false,
                 accessor: 'processes',
                 Cell: settings => {
                     if (settings.value.length === 0) return '--';
