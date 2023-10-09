@@ -641,7 +641,9 @@ class GetBudgetProcessSerializer(serializers.ModelSerializer):
     rounds = RoundsSerializer(many=True)
     created_at = TimestampField(read_only=True)
     updated_at = TimestampField(read_only=True)
-class PostBudgetProcessSerializer(serializers.ModelSerializer):
+
+
+class PostPatchBudgetProcessSerializer(serializers.ModelSerializer):
     class Meta:
         model = BudgetProcess
         fields = ["id", "rounds", "teams"]
@@ -649,6 +651,6 @@ class PostBudgetProcessSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context["request"].user
         validated_data["created_by"] = user
-        instance = super(PostBudgetProcessSerializer, self).create(validated_data)
+        instance = super(PostPatchBudgetProcessSerializer, self).create(validated_data)
 
         return instance

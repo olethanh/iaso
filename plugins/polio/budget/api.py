@@ -21,7 +21,7 @@ from plugins.polio.budget.serializers import (
     WorkflowSerializer,
     TransitionOverrideSerializer,
     GetBudgetProcessSerializer,
-    PostBudgetProcessSerializer,
+    PostPatchBudgetProcessSerializer,
 )
 from iaso.api.common import CustomFilterBackend
 from plugins.polio.models import Campaign
@@ -213,8 +213,9 @@ class BudgetProcessViewset(ModelViewSet):
     """
 
     def get_serializer_class(self):
-        if self.action == "create":
-            return PostBudgetProcessSerializer
+        print(self.action)
+        if self.action == "create" or self.action == "partial_update":
+            return PostPatchBudgetProcessSerializer
         else:
             return GetBudgetProcessSerializer
 

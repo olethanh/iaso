@@ -125,7 +125,9 @@ const ProcessDialog: FunctionComponent<Props> = ({
         select: (data: BudgetProcess[]) =>
             data.filter(process => process.id !== initialData?.id),
     });
-    const { mutateAsync: saveProcess } = useSaveProcess();
+    const { mutateAsync: saveProcess } = useSaveProcess(
+        selectedCampaign?.id ? 'edit' : 'create',
+    );
     const handleChangeCampaign = useCallback((_, newCampaignid) => {
         setSelectedCampaignId(newCampaignid);
     }, []);
@@ -144,6 +146,7 @@ const ProcessDialog: FunctionComponent<Props> = ({
     const schema = useProcessValidation(apiErrors, payload);
     const formik = useFormik({
         initialValues: {
+            id: initialData.id,
             rounds: initialData.rounds,
             teams: initialData.teams,
         },
