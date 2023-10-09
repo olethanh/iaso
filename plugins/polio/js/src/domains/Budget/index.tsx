@@ -76,7 +76,7 @@ export const BudgetList: FunctionComponent<Props> = ({ router }) => {
     const csvParams = getCsvParams(apiParams);
 
     const { data: budgets, isFetching } = useGetBudgets(apiParams);
-    const columns = useBudgetColumns();
+    const columns = useBudgetColumns(params);
     const theme = useTheme();
     const isMobileLayout = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -153,6 +153,7 @@ export const BudgetList: FunctionComponent<Props> = ({ router }) => {
                                     titleMessage={formatMessage(
                                         MESSAGES.addProcess,
                                     )}
+                                    paramCountryId={params.country__id__in}
                                 />
                             </Box>
                         </Box>

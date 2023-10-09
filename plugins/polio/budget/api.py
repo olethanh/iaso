@@ -20,7 +20,8 @@ from plugins.polio.budget.serializers import (
     UpdateBudgetStepSerializer,
     WorkflowSerializer,
     TransitionOverrideSerializer,
-    BudgetProcessSerializer,
+    GetBudgetProcessSerializer,
+    PostBudgetProcessSerializer,
 )
 from iaso.api.common import CustomFilterBackend
 from plugins.polio.models import Campaign
@@ -211,8 +212,13 @@ class BudgetProcessViewset(ModelViewSet):
     Endpoint that allows to handle multiples rounds per Budget.
     """
 
+    def get_serializer_class(self):
+        if self.action == "create":
+            return PostBudgetProcessSerializer
+        else:
+            return GetBudgetProcessSerializer
+
     permission_classes = [HasPermission(permission.POLIO_BUDGET)]  # type: ignore
-    serializer_class = BudgetProcessSerializer
     http_method_names = ["get", "head", "delete", "patch", "post"]
     ordering_fields = ["created_at", "updated_at", "rounds", "teams"]
     list_filter = "rounds"

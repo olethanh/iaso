@@ -4,6 +4,7 @@ import {
     IntlMessage,
     ConfirmCancelModal,
     useSafeIntl,
+    IconButton,
 } from 'bluesquare-components';
 import React, {
     FunctionComponent,
@@ -33,11 +34,32 @@ import { Campaign } from '../../../constants/types';
 import { useGetBudgetProcesses } from './hooks/api/useGetBudgetProcesses';
 import { useGetProcessesRounds } from './hooks/useGetProcessesRounds';
 import { useFormatRound } from './hooks/useFormatRound';
+import { BudgetProcess } from './types';
+
+type PropsIcon = {
+    onClick: () => void;
+};
+
+export const EditIconButton: FunctionComponent<PropsIcon> = ({ onClick }) => {
+    return (
+        <IconButton
+            onClick={onClick}
+            icon="edit"
+            tooltipMessage={MESSAGES.edit}
+        />
+    );
+};
 
 type Props = {
     titleMessage: IntlMessage;
     isOpen: boolean;
     closeDialog: () => void;
+    initialData?: SaveProccessQuery & {
+        id?: number;
+        countryId?: number;
+        campaignId?: string;
+    };
+    paramCountryId?: string;
 };
 
 const useStyles = makeStyles(theme => ({
@@ -51,46 +73,62 @@ const ProcessDialog: FunctionComponent<Props> = ({
     titleMessage,
     isOpen,
     closeDialog,
+    initialData = {
+        id: undefined,
+        rounds: [],
+        teams: [],
+        countryId: undefined,
+        campaignId: undefined,
+    },
+    paramCountryId,
 }) => {
     const { formatMessage } = useSafeIntl();
     const classes = useStyles();
 
     const [selectedCountryId, setSelectedCountryId] = useState<
         number | undefined
-    >();
-    const [selectedCampaign, setSelectedCampaign] = useState<
-        Campaign | undefined
-    >();
+    >(
+        initialData.countryId ||
+            (paramCountryId ? parseInt(paramCountryId, 10) : undefined),
+    );
 
-    const { data: countriesList, isFetching: isFetchingCountries } =
-        useGetCountriesDropdown();
     const { data: campaignsList = [], isFetching: isFetchingCampaigns } =
         useGetCampaigns({
             countries: [`${selectedCountryId}`],
             enabled: Boolean(selectedCountryId),
         });
 
+    const campaignsDropdown = useMemo(
+        () => makeCampaignsDropDown(campaignsList),
+        [campaignsList],
+    );
+
+    const [selectedCampaignId, setSelectedCampaignId] = useState<
+        string | undefined
+    >(initialData?.campaignId);
+
+    const selectedCampaign: Campaign = useMemo(
+        () =>
+            campaignsDropdown.find(
+                campaign => `${campaign.value}` === `${selectedCampaignId}`,
+            )?.original,
+        [campaignsDropdown, selectedCampaignId],
+    );
+    const { data: countriesList, isFetching: isFetchingCountries } =
+        useGetCountriesDropdown();
     const {
         data: existingProcesses = [],
         isFetching: isFetchingExistingProcesses,
     } = useGetBudgetProcesses({
         rounds: selectedCampaign?.rounds.map(round => round.id).join(','),
         enabled: Boolean(selectedCampaign),
+        select: (data: BudgetProcess[]) =>
+            data.filter(process => process.id !== initialData?.id),
     });
     const { mutateAsync: saveProcess } = useSaveProcess();
-    const campaignsDropdown = useMemo(
-        () => makeCampaignsDropDown(campaignsList),
-        [campaignsList],
-    );
-    const handleChangeCampaign = useCallback(
-        (_, newCampaignid) => {
-            const selected = campaignsDropdown.find(
-                campaign => `${campaign.value}` === `${newCampaignid}`,
-            );
-            setSelectedCampaign(selected?.original);
-        },
-        [campaignsDropdown],
-    );
+    const handleChangeCampaign = useCallback((_, newCampaignid) => {
+        setSelectedCampaignId(newCampaignid);
+    }, []);
 
     const {
         apiErrors,
@@ -104,11 +142,10 @@ const ProcessDialog: FunctionComponent<Props> = ({
     });
 
     const schema = useProcessValidation(apiErrors, payload);
-
     const formik = useFormik({
         initialValues: {
-            rounds: [],
-            teams: [],
+            rounds: initialData.rounds,
+            teams: initialData.teams,
         },
         enableReinitialize: true,
         validateOnBlur: false,
@@ -142,8 +179,10 @@ const ProcessDialog: FunctionComponent<Props> = ({
                         !isFetchingExistingProcesses
                     )
                         return true;
-                    return !existingProcesses.some(process =>
-                        process.rounds.map(r => r.id).includes(round.id),
+                    return !existingProcesses.some(
+                        process =>
+                            process.rounds.map(r => r.id).includes(round.id) &&
+                            process.id !== initialData?.id,
                     );
                 })
                 .map(round => ({
@@ -153,6 +192,7 @@ const ProcessDialog: FunctionComponent<Props> = ({
         [
             existingProcesses,
             formatRound,
+            initialData?.id,
             isFetchingExistingProcesses,
             selectedCampaign?.rounds,
         ],
@@ -215,15 +255,16 @@ const ProcessDialog: FunctionComponent<Props> = ({
                     disabled={!selectedCountryId}
                 />
             </InputWithInfos>
-            {existingProcesses.length > 0 && (
-                <Typography className={classes.warning}>
-                    {`${processRounds} ${
-                        existingProcesses.length === 1
-                            ? formatMessage(MESSAGES.roundAlreadyUsed)
-                            : formatMessage(MESSAGES.roundsAlreadyUsed)
-                    }`}
-                </Typography>
-            )}
+            {selectedCampaign?.rounds.length > 0 &&
+                existingProcesses.length > 0 && (
+                    <Typography className={classes.warning}>
+                        {`${processRounds} ${
+                            existingProcesses.length === 1
+                                ? formatMessage(MESSAGES.roundAlreadyUsed)
+                                : formatMessage(MESSAGES.roundsAlreadyUsed)
+                        }`}
+                    </Typography>
+                )}
             <InputWithInfos infos={formatMessage(MESSAGES.processRoundInfos)}>
                 <InputComponent
                     type="select"
@@ -252,6 +293,8 @@ const ProcessDialog: FunctionComponent<Props> = ({
     );
 };
 
-const modalWithButton = makeFullModal(ProcessDialog, AddButton);
+const AddProcessDialog = makeFullModal(ProcessDialog, AddButton);
 
-export { modalWithButton as AddProcessDialog };
+const EditProcessDialog = makeFullModal(ProcessDialog, EditIconButton);
+
+export { AddProcessDialog, EditProcessDialog };

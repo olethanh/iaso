@@ -489,6 +489,7 @@
     "iaso.polio.preparednessRoundStarted": "La préparation de campagne ne peut être éditée après le début du round",
     "iaso.polio.PREPARING": "En préparation",
     "iaso.polio.processes.addProcess": "Planifier un nouveau processus",
+    "iaso.polio.processes.editProcess": "Editer un processus",
     "iaso.polio.processes.processCampaignInfos": "Veuillez sélectionner un pays",
     "iaso.polio.processes.processRoundInfos": "Veuillez sélectionner une campagne",
     "iaso.polio.processes.processRoundWarning": "Tous les rounds sont utlisés par des procédures",

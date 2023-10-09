@@ -3,6 +3,7 @@ import {
     Nullable,
     Optional,
 } from '../../../../../../hat/assets/js/apps/Iaso/types/utils';
+import { BudgetProcesses } from './Processes/types';
 
 export type Timeline = {
     categories: Categories;
@@ -54,6 +55,7 @@ export type Budget = {
     id: number;
     obr_name: string;
     campaign_id: string;
+    country_id: number;
     country_name: string;
     current_state: {
         key: string;
@@ -72,6 +74,7 @@ export type Budget = {
         label: string;
     }[];
     timeline?: Timeline;
+    processes?: BudgetProcesses[];
 };
 
 export type LinkWithAlias = { alias: string; url: string };

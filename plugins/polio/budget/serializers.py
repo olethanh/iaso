@@ -105,6 +105,7 @@ class CampaignBudgetSerializer(CampaignSerializer, DynamicFieldsModelSerializer)
             "created_at",
             "id",
             "obr_name",
+            "country_id",
             "country_name",
             "current_state",
             "next_transitions",
@@ -119,6 +120,7 @@ class CampaignBudgetSerializer(CampaignSerializer, DynamicFieldsModelSerializer)
             "created_at",
             "id",
             "obr_name",
+            "country_id",
             "country_name",
             "current_state",
             "budget_last_updated_at",
@@ -631,18 +633,22 @@ class ExportCampaignBudgetSerializer(CampaignBudgetSerializer):
             return campaign.budget_last_updated_at.strftime("%Y-%m-%d")
 
 
-class BudgetProcessSerializer(serializers.ModelSerializer):
+class GetBudgetProcessSerializer(serializers.ModelSerializer):
     class Meta:
         model = BudgetProcess
         fields = ["id", "created_at", "updated_at", "rounds", "teams"]
 
-    rounds = RoundsSerializer(many=True, read_only=True)
+    rounds = RoundsSerializer(many=True)
     created_at = TimestampField(read_only=True)
     updated_at = TimestampField(read_only=True)
+class PostBudgetProcessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BudgetProcess
+        fields = ["id", "rounds", "teams"]
 
     def create(self, validated_data):
         user = self.context["request"].user
         validated_data["created_by"] = user
-        instance = super(BudgetProcessSerializer, self).create(validated_data)
+        instance = super(PostBudgetProcessSerializer, self).create(validated_data)
 
         return instance

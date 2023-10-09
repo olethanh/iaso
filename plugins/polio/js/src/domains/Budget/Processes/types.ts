@@ -3,7 +3,7 @@ export type Round = {
     number: number;
 };
 
-export type BudgetProcesses = {
+export type BudgetProcess = {
     id: number;
     created_at: number;
     updated_at: number;

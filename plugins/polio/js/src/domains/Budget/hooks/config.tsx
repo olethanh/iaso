@@ -19,11 +19,12 @@ import { Optional } from '../../../../../../../hat/assets/js/apps/Iaso/types/uti
 import { convertObjectToString } from '../../../utils';
 import { formatThousand } from '../../../../../../../hat/assets/js/apps/Iaso/utils';
 import { formatComment } from '../cards/utils';
-import { BudgetStep, Transition, Params } from '../types';
+import { BudgetStep, Transition, Params, Budget } from '../types';
 import getDisplayName from '../../../../../../../hat/assets/js/apps/Iaso/utils/usersUtils';
 
 import { StepActionCell } from '../BudgetDetails/StepActionCell';
 import { useGetProcessesRounds } from '../Processes/hooks/useGetProcessesRounds';
+import { EditProcessDialog } from '../Processes/Dialog';
 
 const baseUrl = BUDGET_DETAILS;
 
@@ -42,7 +43,11 @@ export const getStyle = classes => isHidden => {
     return isHidden ? classes.hiddenRow : '';
 };
 
-export const useBudgetColumns = (): Column[] => {
+type BudgetParams = {
+    country__id__in?: string;
+};
+
+export const useBudgetColumns = (params: BudgetParams): Column[] => {
     const { formatMessage } = useSafeIntl();
     const getProcessesRounds = useGetProcessesRounds();
     return useMemo(() => {
@@ -90,12 +95,37 @@ export const useBudgetColumns = (): Column[] => {
                 accessor: 'id',
                 sortable: false,
                 Cell: settings => {
+                    const budget = settings.row.original as Budget;
                     return (
-                        <IconButtonComponent
-                            icon="remove-red-eye"
-                            tooltipMessage={MESSAGES.details}
-                            url={`${baseUrl}/campaignName/${settings.row.original.obr_name}/campaignId/${settings.row.original.id}`}
-                        />
+                        <>
+                            <IconButtonComponent
+                                icon="remove-red-eye"
+                                tooltipMessage={MESSAGES.details}
+                                url={`${baseUrl}/campaignName/${budget.obr_name}/campaignId/${budget.id}`}
+                            />
+                            {budget.processes?.map(process => (
+                                <EditProcessDialog
+                                    key={process.id}
+                                    paramCountryId={params.country__id__in}
+                                    iconProps={{
+                                        message: MESSAGES.editProcess,
+                                    }}
+                                    initialData={{
+                                        id: process.id,
+                                        teams: [],
+                                        rounds:
+                                            process?.rounds.map(
+                                                round => round.id,
+                                            ) || [],
+                                        countryId: budget.country_id,
+                                        campaignId: budget.obr_name,
+                                    }}
+                                    titleMessage={formatMessage(
+                                        MESSAGES.editProcess,
+                                    )}
+                                />
+                            ))}
+                        </>
                     );
                 },
             },

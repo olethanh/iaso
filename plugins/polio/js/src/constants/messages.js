@@ -2407,6 +2407,14 @@ const MESSAGES = defineMessages({
         id: 'iaso.polio.processes.roundsAlreadyUsed',
         defaultMessage: 'are already used by some processes',
     },
+    editProcess: {
+        id: 'iaso.polio.processes.editProcess',
+        defaultMessage: 'Edit process',
+    },
+    noRoundFound: {
+        id: 'iaso.polio.processes.noRoundFound',
+        defaultMessage: 'No round found',
+    },
 });
 
 export default MESSAGES;
