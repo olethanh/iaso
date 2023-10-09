@@ -23,6 +23,7 @@ import { BudgetStep, Transition, Params } from '../types';
 import getDisplayName from '../../../../../../../hat/assets/js/apps/Iaso/utils/usersUtils';
 
 import { StepActionCell } from '../BudgetDetails/StepActionCell';
+import { useGetProcessesRounds } from '../Processes/hooks/useGetProcessesRounds';
 
 const baseUrl = BUDGET_DETAILS;
 
@@ -43,6 +44,7 @@ export const getStyle = classes => isHidden => {
 
 export const useBudgetColumns = (): Column[] => {
     const { formatMessage } = useSafeIntl();
+    const getProcessesRounds = useGetProcessesRounds();
     return useMemo(() => {
         const cols = [
             {
@@ -80,18 +82,7 @@ export const useBudgetColumns = (): Column[] => {
                 accessor: 'processes',
                 Cell: settings => {
                     if (settings.value.length === 0) return '--';
-                    return settings.value
-                        .map(proccess =>
-                            proccess.rounds
-                                .map(
-                                    roundNumber =>
-                                        `${formatMessage(
-                                            MESSAGES.round,
-                                        )} ${roundNumber}`,
-                                )
-                                .join(', '),
-                        )
-                        .join(', ');
+                    return getProcessesRounds(settings.value);
                 },
             },
             {
@@ -110,7 +101,7 @@ export const useBudgetColumns = (): Column[] => {
             },
         ];
         return cols;
-    }, [formatMessage]);
+    }, [formatMessage, getProcessesRounds]);
 };
 
 export const useBudgetDetailsColumns = (

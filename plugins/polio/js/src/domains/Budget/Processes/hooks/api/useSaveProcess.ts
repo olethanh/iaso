@@ -1,6 +1,6 @@
 import { UseMutationResult } from 'react-query';
-import { postRequest } from '../../../../../../../../hat/assets/js/apps/Iaso/libs/Api';
-import { useSnackMutation } from '../../../../../../../../hat/assets/js/apps/Iaso/libs/apiHooks';
+import { postRequest } from '../../../../../../../../../hat/assets/js/apps/Iaso/libs/Api';
+import { useSnackMutation } from '../../../../../../../../../hat/assets/js/apps/Iaso/libs/apiHooks';
 
 export type SaveProccessQuery = {
     rounds: number[];

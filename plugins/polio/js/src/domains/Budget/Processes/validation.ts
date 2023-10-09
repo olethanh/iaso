@@ -4,7 +4,7 @@ import { useSafeIntl } from 'bluesquare-components';
 import { useAPIErrorValidator } from '../../../../../../../hat/assets/js/apps/Iaso/libs/validation';
 import { ValidationError } from '../../../../../../../hat/assets/js/apps/Iaso/types/utils';
 
-import { SaveProccessQuery } from '../hooks/api/useSaveProcess';
+import { SaveProccessQuery } from './hooks/api/useSaveProcess';
 import MESSAGES from '../../../constants/messages';
 
 export const useProcessValidation = (

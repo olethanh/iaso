@@ -10,7 +10,7 @@ from iaso.api.common import DynamicFieldsModelSerializer, TimestampField
 from iaso.models.microplanning import Team
 from plugins.polio.models import Campaign, Round
 from plugins.polio.api.campaigns.campaigns import CampaignSerializer
-from plugins.polio.api.shared_serializers import UserSerializer
+from plugins.polio.api.shared_serializers import UserSerializer, RoundsSerializer
 from .models import (
     BudgetStep,
     BudgetStepFile,
@@ -85,7 +85,7 @@ class RoundSerializerForProcesses(serializers.ModelSerializer):
 
 
 class ProcessesForCampaignBudgetSerializer(serializers.ModelSerializer):
-    rounds = serializers.SerializerMethodField()
+    rounds = RoundsSerializer(many=True, read_only=True)
 
     class Meta:
         model = BudgetProcess
@@ -636,6 +636,7 @@ class BudgetProcessSerializer(serializers.ModelSerializer):
         model = BudgetProcess
         fields = ["id", "created_at", "updated_at", "rounds", "teams"]
 
+    rounds = RoundsSerializer(many=True, read_only=True)
     created_at = TimestampField(read_only=True)
     updated_at = TimestampField(read_only=True)
 

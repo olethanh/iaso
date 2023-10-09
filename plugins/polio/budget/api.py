@@ -215,12 +215,17 @@ class BudgetProcessViewset(ModelViewSet):
     serializer_class = BudgetProcessSerializer
     http_method_names = ["get", "head", "delete", "patch", "post"]
     ordering_fields = ["created_at", "updated_at", "rounds", "teams"]
+    list_filter = "rounds"
     filter_backends = [filters.OrderingFilter, DjangoFilterBackend, DeletionFilterBackend]
     results_key = "results"
     remove_results_key_if_paginated = True
     pagination_class = Paginator
 
     def get_queryset(self):
-        queryset = BudgetProcess.objects.filter(teams__users=self.request.user)
+        # queryset = BudgetProcess.objects.filter(teams__users=self.request.user)
+        queryset = BudgetProcess.objects.all()
+        rounds = self.request.query_params.get("rounds", None)
+        if rounds:
+            queryset = queryset.filter(rounds__id__in=rounds.split(","))
 
         return queryset

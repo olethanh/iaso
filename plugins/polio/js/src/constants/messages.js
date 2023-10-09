@@ -2395,6 +2395,18 @@ const MESSAGES = defineMessages({
         id: 'iaso.polio.processes.processRoundInfos',
         defaultMessage: 'Please select a campaign',
     },
+    processRoundWarning: {
+        id: 'iaso.polio.processes.processRoundWarning',
+        defaultMessage: 'All rounds are already used by a process',
+    },
+    roundAlreadyUsed: {
+        id: 'iaso.polio.processes.roundAlreadyUsed',
+        defaultMessage: 'is already used by a process',
+    },
+    roundsAlreadyUsed: {
+        id: 'iaso.polio.processes.roundsAlreadyUsed',
+        defaultMessage: 'are already used by some processes',
+    },
 });
 
 export default MESSAGES;

@@ -4,10 +4,18 @@ from rest_framework.fields import Field
 
 from iaso.api.common import UserSerializer
 from iaso.models import Group
-from plugins.polio.models import Destruction, RoundDateHistoryEntry, RoundVaccine
+from plugins.polio.models import Destruction, RoundDateHistoryEntry, RoundVaccine, Round
 from plugins.polio.preparedness.spreadsheet_manager import *
 
 logger = getLogger(__name__)
+
+
+class RoundsSerializer(serializers.ModelSerializer):
+    """Id and number"""
+
+    class Meta:
+        model = Round
+        fields = ["id", "number"]
 
 
 class GroupSerializer(serializers.ModelSerializer):

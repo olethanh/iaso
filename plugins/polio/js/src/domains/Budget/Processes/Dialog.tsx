@@ -14,6 +14,7 @@ import React, {
 import { useFormik } from 'formik';
 import { isEqual } from 'lodash';
 
+import { Typography, makeStyles } from '@material-ui/core';
 import {
     useApiErrorValidation,
     useTranslatedErrors,
@@ -25,10 +26,13 @@ import { commaSeparatedIdsToArray } from '../../../../../../../hat/assets/js/app
 import MESSAGES from '../../../constants/messages';
 import { useProcessValidation } from './validation';
 import { useGetCountriesDropdown } from '../../../hooks/useGetCountriesDropdown';
-import { useSaveProcess, SaveProccessQuery } from '../hooks/api/useSaveProcess';
+import { useSaveProcess, SaveProccessQuery } from './hooks/api/useSaveProcess';
 import { useGetCampaigns } from '../../Campaigns/hooks/api/useGetCampaigns';
 import { makeCampaignsDropDown } from '../../../utils';
 import { Campaign } from '../../../constants/types';
+import { useGetBudgetProcesses } from './hooks/api/useGetBudgetProcesses';
+import { useGetProcessesRounds } from './hooks/useGetProcessesRounds';
+import { useFormatRound } from './hooks/useFormatRound';
 
 type Props = {
     titleMessage: IntlMessage;
@@ -36,12 +40,20 @@ type Props = {
     closeDialog: () => void;
 };
 
+const useStyles = makeStyles(theme => ({
+    warning: {
+        color: theme.palette.warning.main,
+        marginTop: theme.spacing(2),
+    },
+}));
+
 const ProcessDialog: FunctionComponent<Props> = ({
     titleMessage,
     isOpen,
     closeDialog,
 }) => {
     const { formatMessage } = useSafeIntl();
+    const classes = useStyles();
 
     const [selectedCountryId, setSelectedCountryId] = useState<
         number | undefined
@@ -50,7 +62,6 @@ const ProcessDialog: FunctionComponent<Props> = ({
         Campaign | undefined
     >();
 
-    // API calls
     const { data: countriesList, isFetching: isFetchingCountries } =
         useGetCountriesDropdown();
     const { data: campaignsList = [], isFetching: isFetchingCampaigns } =
@@ -59,6 +70,13 @@ const ProcessDialog: FunctionComponent<Props> = ({
             enabled: Boolean(selectedCountryId),
         });
 
+    const {
+        data: existingProcesses = [],
+        isFetching: isFetchingExistingProcesses,
+    } = useGetBudgetProcesses({
+        rounds: selectedCampaign?.rounds.map(round => round.id).join(','),
+        enabled: Boolean(selectedCampaign),
+    });
     const { mutateAsync: saveProcess } = useSaveProcess();
     const campaignsDropdown = useMemo(
         () => makeCampaignsDropDown(campaignsList),
@@ -73,7 +91,7 @@ const ProcessDialog: FunctionComponent<Props> = ({
         },
         [campaignsDropdown],
     );
-    // API form validation
+
     const {
         apiErrors,
         payload,
@@ -85,10 +103,8 @@ const ProcessDialog: FunctionComponent<Props> = ({
         },
     });
 
-    // Form validation
     const schema = useProcessValidation(apiErrors, payload);
 
-    // Formik
     const formik = useFormik({
         initialValues: {
             rounds: [],
@@ -116,14 +132,30 @@ const ProcessDialog: FunctionComponent<Props> = ({
         touched,
         messages: MESSAGES,
     });
-
+    const formatRound = useFormatRound();
     const roundsOptions = useMemo(
         () =>
-            selectedCampaign?.rounds.map(round => ({
-                label: `${formatMessage(MESSAGES.round)} ${round.number}`,
-                value: round.id,
-            })) || [],
-        [formatMessage, selectedCampaign?.rounds],
+            selectedCampaign?.rounds
+                .filter(round => {
+                    if (
+                        existingProcesses.length === 0 &&
+                        !isFetchingExistingProcesses
+                    )
+                        return true;
+                    return !existingProcesses.some(process =>
+                        process.rounds.map(r => r.id).includes(round.id),
+                    );
+                })
+                .map(round => ({
+                    label: formatRound(round.number),
+                    value: round.id,
+                })) || [],
+        [
+            existingProcesses,
+            formatRound,
+            isFetchingExistingProcesses,
+            selectedCampaign?.rounds,
+        ],
     );
 
     const onChange = useCallback(
@@ -133,6 +165,14 @@ const ProcessDialog: FunctionComponent<Props> = ({
         },
         [setFieldTouched, setFieldValue],
     );
+
+    const handleClose = useCallback(() => {
+        resetForm();
+        closeDialog();
+    }, [closeDialog, resetForm]);
+
+    const getProcessesRounds = useGetProcessesRounds();
+    const processRounds = getProcessesRounds(existingProcesses);
     return (
         <ConfirmCancelModal
             titleMessage={titleMessage}
@@ -145,11 +185,8 @@ const ProcessDialog: FunctionComponent<Props> = ({
             id="process-dialog"
             dataTestId="process-dialog"
             allowConfirm={isValid && !isEqual(values, initialValues)}
-            onClose={() => null}
-            onCancel={() => {
-                resetForm();
-                closeDialog();
-            }}
+            onClose={handleClose}
+            onCancel={handleClose}
         >
             <InputComponent
                 type="select"
@@ -178,14 +215,21 @@ const ProcessDialog: FunctionComponent<Props> = ({
                     disabled={!selectedCountryId}
                 />
             </InputWithInfos>
-            <InputWithInfos
-                infos={formatMessage(MESSAGES.processCampaignInfos)}
-            >
+            {existingProcesses.length > 0 && (
+                <Typography className={classes.warning}>
+                    {`${processRounds} ${
+                        existingProcesses.length === 1
+                            ? formatMessage(MESSAGES.roundAlreadyUsed)
+                            : formatMessage(MESSAGES.roundsAlreadyUsed)
+                    }`}
+                </Typography>
+            )}
+            <InputWithInfos infos={formatMessage(MESSAGES.processRoundInfos)}>
                 <InputComponent
                     type="select"
                     keyValue="rounds"
                     multi
-                    loading={false}
+                    loading={isFetchingCampaigns || isFetchingExistingProcesses}
                     onChange={(key, newValue) =>
                         onChange(key, commaSeparatedIdsToArray(newValue))
                     }
@@ -197,6 +241,12 @@ const ProcessDialog: FunctionComponent<Props> = ({
                     errors={getErrors('rounds')}
                     disabled={!selectedCountryId || !selectedCampaign}
                 />
+                {processRounds.split(',').length ===
+                    selectedCampaign?.rounds.length && (
+                    <Typography className={classes.warning}>
+                        {formatMessage(MESSAGES.processRoundWarning)}
+                    </Typography>
+                )}
             </InputWithInfos>
         </ConfirmCancelModal>
     );
