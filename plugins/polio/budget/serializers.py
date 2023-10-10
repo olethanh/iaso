@@ -654,3 +654,15 @@ class PostPatchBudgetProcessSerializer(serializers.ModelSerializer):
         instance = super(PostPatchBudgetProcessSerializer, self).create(validated_data)
 
         return instance
+
+    def validate_rounds(self, value):
+        # Check if a BudgetProcess with the same round(s) already exists
+        if self.instance and self.instance.pk:
+            existing_budget_processes = BudgetProcess.objects.exclude(pk=self.instance.pk).filter(rounds__in=value)
+        else:
+            existing_budget_processes = BudgetProcess.objects.filter(rounds__in=value)
+
+        if existing_budget_processes.exists():
+            raise serializers.ValidationError("A BudgetProcess with the same Round(s) already exists.")
+
+        return value

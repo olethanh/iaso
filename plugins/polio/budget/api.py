@@ -213,7 +213,6 @@ class BudgetProcessViewset(ModelViewSet):
     """
 
     def get_serializer_class(self):
-        print(self.action)
         if self.action == "create" or self.action == "partial_update":
             return PostPatchBudgetProcessSerializer
         else:
