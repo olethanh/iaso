@@ -93,9 +93,7 @@ class ProcessesForCampaignBudgetSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_rounds(obj):
-        round_pks = obj.rounds.all().values_list("pk", flat=True)
-        rounds = Round.objects.filter(pk__in=round_pks)
-        return [round.number for round in rounds]
+        return [c_round.number for c_round in obj.rounds.all()]
 
 
 class CampaignBudgetSerializer(CampaignSerializer, DynamicFieldsModelSerializer):
