@@ -119,7 +119,7 @@ export const BudgetForm: FunctionComponent = () => {
     const classes: Record<string, string> = useStyles();
     const { formatMessage } = useSafeIntl();
     const { values, touched, errors, setFieldValue } = useFormikContext<any>();
-
+    console.log('values', values);
     const { rounds = [], has_data_in_budget_tool: disableEdition } = values;
 
     const totalCostPerChild: string = useMemo(() => {
