@@ -123,7 +123,7 @@ export const BudgetDetailsInfos: FunctionComponent<Props> = ({
                                 <TableCell
                                     className={classnames(classes.leftCell)}
                                 >
-                                    {formatMessage(MESSAGES.rounds)}
+                                    {formatMessage(MESSAGES.roundsOptional)}
                                 </TableCell>
                                 <TableCell>{processRounds || '--'}</TableCell>
                             </TableRow>

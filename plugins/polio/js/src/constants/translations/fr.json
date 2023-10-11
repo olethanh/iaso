@@ -118,6 +118,7 @@
     "iaso.polio.form.label.roundOneEnd": "Date de fin Round 1",
     "iaso.polio.form.label.roundOneStart": "Date de début Round 1",
     "iaso.polio.form.label.rounds": "Rounds",
+    "iaso.polio.form.label.roundsOptional": "Round(s)",
     "iaso.polio.form.label.roundtwoEnd": "Date de fin Round 2",
     "iaso.polio.form.label.roundtwoStart": "Date de début Round 2",
     "iaso.polio.form.label.rrtOprttApproval": "Date d'approbation du RRT/OPRTT",

@@ -1273,6 +1273,10 @@ const MESSAGES = defineMessages({
         id: 'iaso.polio.form.label.rounds',
         defaultMessage: 'Rounds',
     },
+    roundsOptional: {
+        id: 'iaso.polio.form.label.roundsOptional',
+        defaultMessage: 'Round(s)',
+    },
     roundEmptyStartDate: {
         id: 'iaso.polio.forms.emptyStartDate',
         defaultMessage: 'Round {roundNumber} has no start date',
