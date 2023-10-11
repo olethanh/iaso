@@ -166,7 +166,6 @@ const ProcessDialog: FunctionComponent<Props> = ({
         handleSubmit,
         resetForm,
     } = formik;
-    console.log('formik', formik);
     const getErrors = useTranslatedErrors({
         errors,
         formatMessage,
