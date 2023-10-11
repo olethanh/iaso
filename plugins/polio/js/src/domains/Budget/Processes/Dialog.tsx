@@ -126,7 +126,7 @@ const ProcessDialog: FunctionComponent<Props> = ({
             data.filter(process => process.id !== initialData?.id),
     });
     const { mutateAsync: saveProcess } = useSaveProcess(
-        selectedCampaign?.id ? 'edit' : 'create',
+        initialData?.id ? 'edit' : 'create',
     );
     const handleChangeCampaign = useCallback((_, newCampaignid) => {
         setSelectedCampaignId(newCampaignid);
@@ -166,6 +166,7 @@ const ProcessDialog: FunctionComponent<Props> = ({
         handleSubmit,
         resetForm,
     } = formik;
+    console.log('formik', formik);
     const getErrors = useTranslatedErrors({
         errors,
         formatMessage,

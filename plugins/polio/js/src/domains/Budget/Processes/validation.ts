@@ -21,7 +21,7 @@ export const useProcessValidation = (
             rounds: array()
                 .of(string())
                 .nullable()
-                .required(formatMessage(MESSAGES.requiredField))
+                .min(1, formatMessage(MESSAGES.requiredField))
                 .test(apiValidator('rounds')),
             teams: array().of(number()).nullable().test(apiValidator('teams')),
         });
