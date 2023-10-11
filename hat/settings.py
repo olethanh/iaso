@@ -175,6 +175,17 @@ INSTALLED_APPS = [
     "django_filters",
     "drf_yasg",
     "django_json_widget",
+    "plugins.trypelim.cases",
+    "plugins.trypelim.geo",
+    "plugins.trypelim.lab",
+    "plugins.trypelim.metrics",
+    "plugins.trypelim.notifications",
+    "plugins.trypelim.patient",
+    "plugins.trypelim.planning",
+    "plugins.trypelim.quality",
+    "plugins.trypelim.trypelim_sync",
+    "plugins.trypelim.users",
+    "plugins.trypelim.vector_control",
 ]
 
 if USE_CELERY:
@@ -563,3 +574,48 @@ CACHES = {
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
 # CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379")
 CELERY_RESULT_BACKEND = "django-db"
+
+# Trypelim
+COUCHDB_URL = os.environ.get("COUCHDB_URL", "http://couchdb:5984")
+COUCHDB_USER = os.environ.get("COUCHDB_USER", None)
+COUCHDB_PASSWORD = os.environ.get("COUCHDB_PASSWORD", None)
+COUCHDB_DIR = "./plugins/trypelim/couchdb"
+
+REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
+REDIS_PORT = 6379
+REDIS_DB = 0
+REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", None)
+REDIS_CACHE_DB = 1
+
+# Trypelim RQ
+RQ_QUEUES = {
+    "default": {
+        "HOST": REDIS_HOST,
+        "PORT": REDIS_PORT,
+        "DB": REDIS_DB,
+        "PASSWORD": REDIS_PASSWORD,
+        "DEFAULT_TIMEOUT": 360,
+    }
+}
+RQ_SHOW_ADMIN_LINK = True
+
+# Trypelim notifications
+FROM_EMAIL = os.environ.get("FROM_EMAIL", "")
+
+if DEBUG:
+    EMAIL_HOST = "mailcatcher"
+    EMAIL_HOST_USER = ""
+    EMAIL_HOST_PASSWORD = ""
+    EMAIL_PORT = 1025
+    EMAIL_USE_TLS = False
+else:
+    EMAIL_BACKEND = "django_ses.SESBackend"
+    AWS_SES_ACCESS_KEY_ID = os.environ.get("AWS_SES_ACCESS_KEY_ID", "")
+    AWS_SES_SECRET_ACCESS_KEY = os.environ.get("AWS_SES_SECRET_ACCESS_KEY", "")
+    AWS_SES_REGION_NAME = os.environ.get("AWS_SES_REGION_NAME", "")
+    AWS_SES_REGION_ENDPOINT = os.environ.get("AWS_SES_REGION_ENDPOINT", "")
+
+NOTIFICATION_JOB_DELAY_IN_SECONDS = 30
+SMS_ORANGE_CLIENT_ID = os.environ.get("SMS_ORANGE_CLIENT_ID", "")
+SMS_ORANGE_CLIENT_SECRET = os.environ.get("SMS_ORANGE_CLIENT_SECRET", "")
+SMS_DEV_PHONE_NUMBER = os.environ.get("SMS_DEV_PHONE_NUMBER", "")
