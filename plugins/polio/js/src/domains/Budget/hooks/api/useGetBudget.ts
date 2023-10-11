@@ -103,7 +103,7 @@ export const useGetBudgetForCampaign = (
     id: Optional<string>,
 ): UseQueryResult<Partial<Budget>> => {
     const params = {
-        fields: 'id,obr_name,current_state,next_transitions,possible_transitions,timeline',
+        fields: 'id,obr_name,current_state,next_transitions,possible_transitions,timeline,processes',
     };
 
     return useSnackQuery({

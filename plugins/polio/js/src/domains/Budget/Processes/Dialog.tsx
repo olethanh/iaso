@@ -215,7 +215,10 @@ const ProcessDialog: FunctionComponent<Props> = ({
     }, [closeDialog, resetForm]);
 
     const getProcessesRounds = useGetProcessesRounds();
-    const processRounds = getProcessesRounds(existingProcesses);
+    const processRounds = useMemo(
+        () => getProcessesRounds(existingProcesses),
+        [existingProcesses, getProcessesRounds],
+    );
     return (
         <ConfirmCancelModal
             titleMessage={titleMessage}

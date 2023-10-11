@@ -15,12 +15,13 @@ import { useSafeIntl, Paginated } from 'bluesquare-components';
 import classnames from 'classnames';
 import WidgetPaperComponent from '../../../../../../../hat/assets/js/apps/Iaso/components/papers/WidgetPaperComponent';
 import MESSAGES from '../../../constants/messages';
-import { BudgetStep, Categories, Transition } from '../types';
+import { Budget, BudgetStep, Categories, Transition } from '../types';
 import { CreateBudgetStep } from '../CreateBudgetStep/CreateBudgetStep';
 import { CreateOverrideStep } from '../CreateBudgetStep/CreateOverrideStep';
 import { BudgetTimeline } from './BudgetTimeline';
 import { userHasPermission } from '../../../../../../../hat/assets/js/apps/Iaso/domains/users/utils';
 import { useCurrentUser } from '../../../../../../../hat/assets/js/apps/Iaso/utils/usersUtils';
+import { useGetProcessesRounds } from '../Processes/hooks/useGetProcessesRounds';
 
 type NextSteps = {
     regular?: Transition[];
@@ -38,6 +39,7 @@ type Props = {
     nextSteps?: NextSteps;
     categories?: Categories;
     budgetDetails?: Paginated<BudgetStep>;
+    budgetInfos?: Partial<Budget>;
     params: Params;
 };
 
@@ -72,6 +74,7 @@ export const BudgetDetailsInfos: FunctionComponent<Props> = ({
     nextSteps,
     categories = [],
     budgetDetails,
+    budgetInfos,
     params,
 }) => {
     const { previousStep, quickTransition, campaignId } = params;
@@ -93,7 +96,14 @@ export const BudgetDetailsInfos: FunctionComponent<Props> = ({
             step => step.id === parseInt(previousStep, 10),
         );
     }, [budgetDetails?.results, previousStep, quickTransition]);
-
+    const getProcessesRounds = useGetProcessesRounds();
+    const processRounds: string | undefined = useMemo(
+        () =>
+            budgetInfos?.processes
+                ? getProcessesRounds(budgetInfos.processes)
+                : undefined,
+        [budgetInfos?.processes, getProcessesRounds],
+    );
     return (
         <WidgetPaperComponent
             title={formatMessage(MESSAGES.budgetStatus)}
@@ -108,6 +118,14 @@ export const BudgetDetailsInfos: FunctionComponent<Props> = ({
                                     {formatMessage(MESSAGES.status)}
                                 </TableCell>
                                 <TableCell>{status}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell
+                                    className={classnames(classes.leftCell)}
+                                >
+                                    {formatMessage(MESSAGES.rounds)}
+                                </TableCell>
+                                <TableCell>{processRounds || '--'}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell

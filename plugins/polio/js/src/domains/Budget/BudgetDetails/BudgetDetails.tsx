@@ -124,6 +124,7 @@ export const BudgetDetails: FunctionComponent<Props> = ({ router }) => {
                         categories={budgetInfos?.timeline?.categories}
                         params={router.params}
                         budgetDetails={budgetDetails}
+                        budgetInfos={budgetInfos}
                     />
                 </Box>
                 <Grid container spacing={isMobileLayout ? 0 : 2}>
