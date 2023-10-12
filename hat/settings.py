@@ -17,6 +17,7 @@ import os
 import re
 import sys
 import urllib.parse
+import importlib
 from datetime import timedelta
 from typing import Any, Dict
 from urllib.parse import urlparse
@@ -175,17 +176,6 @@ INSTALLED_APPS = [
     "django_filters",
     "drf_yasg",
     "django_json_widget",
-    "plugins.trypelim.cases",
-    "plugins.trypelim.geo",
-    "plugins.trypelim.lab",
-    "plugins.trypelim.metrics",
-    "plugins.trypelim.notifications",
-    "plugins.trypelim.patient",
-    "plugins.trypelim.planning",
-    "plugins.trypelim.quality",
-    "plugins.trypelim.trypelim_sync",
-    "plugins.trypelim.users",
-    "plugins.trypelim.vector_control",
 ]
 
 if USE_CELERY:
@@ -197,7 +187,14 @@ COMMENTS_APP = "iaso"
 
 print("Enabled plugins:", PLUGINS, end=" ")
 for plugin_name in PLUGINS:
-    INSTALLED_APPS.append(f"plugins.{plugin_name}")
+    try:
+        plugin_settings = importlib.import_module(f"plugins.{plugin_name}.plugin_settings")
+        if hasattr(plugin_settings, "INSTALLED_APPS"):
+            INSTALLED_APPS.extend(plugin_settings.INSTALLED_APPS)
+        else:
+            INSTALLED_APPS.append(f"plugins.{plugin_name}")
+    except ModuleNotFoundError:
+        INSTALLED_APPS.append(f"plugins.{plugin_name}")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
