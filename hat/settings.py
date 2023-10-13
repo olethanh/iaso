@@ -189,11 +189,19 @@ print("Enabled plugins:", PLUGINS, end=" ")
 for plugin_name in PLUGINS:
     try:
         plugin_settings = importlib.import_module(f"plugins.{plugin_name}.plugin_settings")
+
         if hasattr(plugin_settings, "INSTALLED_APPS"):
             INSTALLED_APPS.extend(plugin_settings.INSTALLED_APPS)
         else:
-            INSTALLED_APPS.append(f"plugins.{plugin_name}")
-    except ModuleNotFoundError:
+            print(f"WARNING: found plugin_settings.py for plugin {plugin_name}, but it doesn't contain INSTALLED_APPS")
+
+        if hasattr(plugin_settings, "CONSTANTS"):
+            # Inject CONSTANTS dictionary into the Django settings
+            for constant, value in plugin_settings.CONSTANTS.items():
+                globals()[constant] = value
+        else:
+            print(f"WARNING: found plugin_settings.py for plugin {plugin_name}, but it doesn't contain CONSTANTS")
+    except ModuleNotFoundError:  # Use "simple" plugin system if no settings file found
         INSTALLED_APPS.append(f"plugins.{plugin_name}")
 
 MIDDLEWARE = [
@@ -245,7 +253,7 @@ WSGI_APPLICATION = "hat.wsgi.application"
 DB_NAME = os.environ.get("RDS_DB_NAME", "iaso")
 DB_USERNAME = os.environ.get("RDS_USERNAME", "postgres")
 DB_PASSWORD = os.environ.get("RDS_PASSWORD", None)
-DB_HOST = os.environ.get("RDS_HOSTNAME", "db")
+DB_HOST = os.environ.get("RDS_HOSTNAME", "localhost")
 DB_PORT = os.environ.get("RDS_PORT", 5432)
 SNS_NOTIFICATION_TOPIC = os.environ.get("SNS_NOTIFICATION_TOPIC", None)
 
@@ -571,48 +579,3 @@ CACHES = {
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
 # CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379")
 CELERY_RESULT_BACKEND = "django-db"
-
-# Trypelim
-COUCHDB_URL = os.environ.get("COUCHDB_URL", "http://couchdb:5984")
-COUCHDB_USER = os.environ.get("COUCHDB_USER", None)
-COUCHDB_PASSWORD = os.environ.get("COUCHDB_PASSWORD", None)
-COUCHDB_DIR = "./plugins/trypelim/couchdb"
-
-REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
-REDIS_PORT = 6379
-REDIS_DB = 0
-REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", None)
-REDIS_CACHE_DB = 1
-
-# Trypelim RQ
-RQ_QUEUES = {
-    "default": {
-        "HOST": REDIS_HOST,
-        "PORT": REDIS_PORT,
-        "DB": REDIS_DB,
-        "PASSWORD": REDIS_PASSWORD,
-        "DEFAULT_TIMEOUT": 360,
-    }
-}
-RQ_SHOW_ADMIN_LINK = True
-
-# Trypelim notifications
-FROM_EMAIL = os.environ.get("FROM_EMAIL", "")
-
-if DEBUG:
-    EMAIL_HOST = "mailcatcher"
-    EMAIL_HOST_USER = ""
-    EMAIL_HOST_PASSWORD = ""
-    EMAIL_PORT = 1025
-    EMAIL_USE_TLS = False
-else:
-    EMAIL_BACKEND = "django_ses.SESBackend"
-    AWS_SES_ACCESS_KEY_ID = os.environ.get("AWS_SES_ACCESS_KEY_ID", "")
-    AWS_SES_SECRET_ACCESS_KEY = os.environ.get("AWS_SES_SECRET_ACCESS_KEY", "")
-    AWS_SES_REGION_NAME = os.environ.get("AWS_SES_REGION_NAME", "")
-    AWS_SES_REGION_ENDPOINT = os.environ.get("AWS_SES_REGION_ENDPOINT", "")
-
-NOTIFICATION_JOB_DELAY_IN_SECONDS = 30
-SMS_ORANGE_CLIENT_ID = os.environ.get("SMS_ORANGE_CLIENT_ID", "")
-SMS_ORANGE_CLIENT_SECRET = os.environ.get("SMS_ORANGE_CLIENT_SECRET", "")
-SMS_DEV_PHONE_NUMBER = os.environ.get("SMS_DEV_PHONE_NUMBER", "")
