@@ -31,7 +31,7 @@ import { useSaveProcess, SaveProccessQuery } from './hooks/api/useSaveProcess';
 import { useGetCampaigns } from '../../Campaigns/hooks/api/useGetCampaigns';
 import { makeCampaignsDropDown } from '../../../utils';
 import { Campaign } from '../../../constants/types';
-import { useGetBudgetProcesses } from './hooks/api/useGetBudgetProcesses';
+import { useGetBudgetsProcesses } from './hooks/api/useGetBudgetsProcesses';
 import { useGetProcessesRounds } from './hooks/useGetProcessesRounds';
 import { useFormatRound } from './hooks/useFormatRound';
 import { BudgetProcess } from './types';
@@ -119,7 +119,7 @@ const ProcessDialog: FunctionComponent<Props> = ({
     const {
         data: existingProcesses = [],
         isFetching: isFetchingExistingProcesses,
-    } = useGetBudgetProcesses({
+    } = useGetBudgetsProcesses({
         rounds: selectedCampaign?.rounds.map(round => round.id).join(','),
         enabled: Boolean(selectedCampaign),
         select: (data: BudgetProcess[]) =>

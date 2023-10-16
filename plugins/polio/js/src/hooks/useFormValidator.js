@@ -696,6 +696,7 @@ export const useFormValidator = () => {
         initial_org_unit: yup.number().positive().integer().required(),
         grouped_campaigns: yup.array(yup.number()).nullable(),
         description: yup.string().nullable(),
+        rounds: yup.array(round_shape).nullable(),
         onset_at: yup
             .date()
             .nullable()
@@ -738,50 +739,68 @@ export const useFormValidator = () => {
             .nullable()
             .typeError(formatMessage(MESSAGES.invalidDate)),
         // Budget tab
-        who_sent_budget_at_WFEDITABLE: yup.date().nullable(),
-        unicef_sent_budget_at_WFEDITABLE: yup.date().nullable(),
-        gpei_consolidated_budgets_at_WFEDITABLE: yup.date().nullable(),
-        submitted_to_rrt_at_WFEDITABLE: yup.date().nullable(),
-        feedback_sent_to_gpei_at_WFEDITABLE: yup.date().nullable(),
-        re_submitted_to_rrt_at_WFEDITABLE: yup.date().nullable(),
-        submitted_to_orpg_operations1_at_WFEDITABLE: yup.date().nullable(),
-        feedback_sent_to_rrt1_at_WFEDITABLE: yup.date().nullable(),
-        submitted_to_orpg_wider_at_WFEDITABLE: yup.date().nullable(),
-        submission_to_orpg_operations_2_at_WFEDITABLE: yup.date().nullable(),
-        feedback_sent_to_rrt2_at_WFEDITABLE: yup.date().nullable(),
-        re_submitted_to_orpg_operations1_at_WFEDITABLE: yup.date().nullable(),
-        re_submitted_to_orpg_operations2_at_WFEDITABLE: yup.date().nullable(),
-        submitted_for_approval_at_WFEDITABLE: yup.date().nullable(),
-        approved_by_who_at_WFEDITABLE: yup.date().nullable(),
-        feedback_sent_to_orpg_operations_who_at_WFEDITABLE: yup
-            .date()
-            .nullable(),
-        feedback_sent_to_orpg_operations_unicef_at_WFEDITABLE: yup
-            .date()
-            .nullable(),
-        approved_by_unicef_at_WFEDITABLE: yup.date().nullable(),
-        approved_at_WFEDITABLE: yup.date().nullable(),
-        approval_confirmed_at_WFEDITABLE: yup.date().nullable(),
-        unicef_disbursed_to_moh_at: yup.date().nullable(),
-        unicef_disbursed_to_co_at: yup.date().nullable(),
-        who_disbursed_to_moh_at: yup.date().nullable(),
-        who_disbursed_to_co_at: yup.date().nullable(),
-        spreadsheet_url: yup.string().url().nullable(),
+        processes: yup
+            .array()
+            .of(
+                yup.object({
+                    who_sent_budget_at_WFEDITABLE: yup.date().nullable(),
+                    unicef_sent_budget_at_WFEDITABLE: yup.date().nullable(),
+                    gpei_consolidated_budgets_at_WFEDITABLE: yup
+                        .date()
+                        .nullable(),
+                    submitted_to_rrt_at_WFEDITABLE: yup.date().nullable(),
+                    feedback_sent_to_gpei_at_WFEDITABLE: yup.date().nullable(),
+                    re_submitted_to_rrt_at_WFEDITABLE: yup.date().nullable(),
+                    submitted_to_orpg_operations1_at_WFEDITABLE: yup
+                        .date()
+                        .nullable(),
+                    feedback_sent_to_rrt1_at_WFEDITABLE: yup.date().nullable(),
+                    submitted_to_orpg_wider_at_WFEDITABLE: yup
+                        .date()
+                        .nullable(),
+                    submission_to_orpg_operations_2_at_WFEDITABLE: yup
+                        .date()
+                        .nullable(),
+                    feedback_sent_to_rrt2_at_WFEDITABLE: yup.date().nullable(),
+                    re_submitted_to_orpg_operations1_at_WFEDITABLE: yup
+                        .date()
+                        .nullable(),
+                    re_submitted_to_orpg_operations2_at_WFEDITABLE: yup
+                        .date()
+                        .nullable(),
+                    submitted_for_approval_at_WFEDITABLE: yup.date().nullable(),
+                    approved_by_who_at_WFEDITABLE: yup.date().nullable(),
+                    feedback_sent_to_orpg_operations_who_at_WFEDITABLE: yup
+                        .date()
+                        .nullable(),
+                    feedback_sent_to_orpg_operations_unicef_at_WFEDITABLE: yup
+                        .date()
+                        .nullable(),
+                    approved_by_unicef_at_WFEDITABLE: yup.date().nullable(),
+                    approved_at_WFEDITABLE: yup.date().nullable(),
+                    approval_confirmed_at_WFEDITABLE: yup.date().nullable(),
+                    unicef_disbursed_to_moh_at: yup.date().nullable(),
+                    unicef_disbursed_to_co_at: yup.date().nullable(),
+                    who_disbursed_to_moh_at: yup.date().nullable(),
+                    who_disbursed_to_co_at: yup.date().nullable(),
+                    spreadsheet_url: yup.string().url().nullable(),
 
-        eomg: yup.date().nullable(),
-        budget_submitted_at: yup.date().nullable(),
-        district_count: yup
-            .number()
-            .nullable()
-            .positive()
-            .integer()
-            .typeError(formatMessage(MESSAGES.positiveInteger)),
-        no_regret_fund_amount: yup
-            .number()
-            .nullable()
-            .positive()
-            .integer()
-            .typeError(formatMessage(MESSAGES.positiveInteger)),
-        rounds: yup.array(round_shape).nullable(),
+                    eomg: yup.date().nullable(),
+                    budget_submitted_at: yup.date().nullable(),
+                    district_count: yup
+                        .number()
+                        .nullable()
+                        .positive()
+                        .integer()
+                        .typeError(formatMessage(MESSAGES.positiveInteger)),
+                    no_regret_fund_amount: yup
+                        .number()
+                        .nullable()
+                        .positive()
+                        .integer()
+                        .typeError(formatMessage(MESSAGES.positiveInteger)),
+                }),
+            )
+            .nullable(),
     });
 };

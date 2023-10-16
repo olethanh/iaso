@@ -55,16 +55,10 @@ class BudgetCampaignViewSet(ModelViewSet, CSVExportMixin):
     def get_queryset(self) -> QuerySet:
         user = self.request.user
         campaigns_with_budget_process = Campaign.objects.filter(
-            rounds__in=Subquery(
-                BudgetProcess.objects.filter(
-                    rounds__campaign=OuterRef('pk')
-                ).values('rounds')
-            )
+            rounds__in=Subquery(BudgetProcess.objects.filter(rounds__campaign=OuterRef("pk")).values("rounds"))
         )
         # Filter the campaigns based on the user and the subquery
-        campaigns = Campaign.objects.filter_for_user(user).filter(
-            pk__in=campaigns_with_budget_process
-        )
+        campaigns = Campaign.objects.filter_for_user(user).filter(pk__in=campaigns_with_budget_process)
 
         campaigns = campaigns.annotate(budget_last_updated_at=Max("budget_steps__created_at"))
         return campaigns
@@ -242,7 +236,10 @@ class BudgetProcessViewset(ModelViewSet):
         # queryset = BudgetProcess.objects.filter(teams__users=self.request.user)
         queryset = BudgetProcess.objects.all()
         rounds = self.request.query_params.get("rounds", None)
+        campaign_id = self.request.query_params.get("campaignId", None)
         if rounds:
             queryset = queryset.filter(rounds__id__in=rounds.split(","))
+        if campaign_id:
+            queryset = queryset.filter(rounds__campaign__id=campaign_id)
 
         return queryset

@@ -115,12 +115,21 @@ export const budgetFormFields = (rounds: Round[]): string[] => {
     ];
 };
 
-export const BudgetForm: FunctionComponent = () => {
+type Props = {
+    processIndex: number;
+};
+
+export const BudgetForm: FunctionComponent<Props> = ({ processIndex }) => {
     const classes: Record<string, string> = useStyles();
     const { formatMessage } = useSafeIntl();
-    const { values, touched, errors, setFieldValue } = useFormikContext<any>();
-    console.log('values', values);
-    const { rounds = [], has_data_in_budget_tool: disableEdition } = values;
+    const {
+        values: { processes = [], rounds = [] },
+        touched,
+        errors,
+        setFieldValue,
+    } = useFormikContext<any>();
+    const currentProcess = processes[processIndex];
+    const { has_data_in_budget_tool: disableEdition } = currentProcess;
 
     const totalCostPerChild: string = useMemo(() => {
         let totalCost = 0;
@@ -159,7 +168,8 @@ export const BudgetForm: FunctionComponent = () => {
     const updateBudgetStatus = useCallback(
         (fieldName: string, value: any) => {
             const fieldKey = fieldName.replace(WORKFLOW_SUFFIX, '');
-            const computedBudgetStatusIndex = findBudgetStateIndex(values);
+            const computedBudgetStatusIndex =
+                findBudgetStateIndex(currentProcess);
             const fieldIndex = BUDGET_STATES.findIndex(
                 budgetState => budgetState === fieldKey,
             );
@@ -167,7 +177,10 @@ export const BudgetForm: FunctionComponent = () => {
                 setFieldValue('budget_status', fieldKey);
                 setFieldValue('budget_current_state_key', fieldKey);
             } else if (!value && fieldIndex >= computedBudgetStatusIndex) {
-                const newBudgetState = findNewBudgetState(fieldIndex, values);
+                const newBudgetState = findNewBudgetState(
+                    fieldIndex,
+                    currentProcess,
+                );
                 setFieldValue('budget_status', newBudgetState);
                 setFieldValue(
                     'budget_current_state_key',
@@ -175,7 +188,7 @@ export const BudgetForm: FunctionComponent = () => {
                 );
             }
         },
-        [setFieldValue, values],
+        [setFieldValue, currentProcess],
     );
 
     const title: string = disableEdition
@@ -185,10 +198,11 @@ export const BudgetForm: FunctionComponent = () => {
         : formatMessage(MESSAGES.budgetApproval);
 
     const budgetStatusMessage: string = MESSAGES[
-        values.budget_current_state_key
+        currentProcess.budget_current_state_key
     ]
-        ? formatMessage(MESSAGES[values.budget_current_state_key])
-        : values.budget_status ?? values.budget_current_state_key;
+        ? formatMessage(MESSAGES[currentProcess.budget_current_state_key])
+        : currentProcess.budget_status ??
+          currentProcess.budget_current_state_key;
 
     return (
         <Grid container spacing={2} direction="row">
@@ -234,7 +248,7 @@ export const BudgetForm: FunctionComponent = () => {
                                             label={formatMessage(
                                                 MESSAGES[node],
                                             )}
-                                            name={`${node}${WORKFLOW_SUFFIX}`}
+                                            name={`processes[${processIndex}].${node}${WORKFLOW_SUFFIX}`}
                                             component={DateInput}
                                             fullWidth
                                             disabled={disableEdition}
@@ -256,7 +270,7 @@ export const BudgetForm: FunctionComponent = () => {
                                             label={formatMessage(
                                                 MESSAGES[node],
                                             )}
-                                            name={`${node}${WORKFLOW_SUFFIX}`}
+                                            name={`processes[${processIndex}].${node}${WORKFLOW_SUFFIX}`}
                                             component={DateInput}
                                             fullWidth
                                             disabled={disableEdition}
@@ -283,7 +297,7 @@ export const BudgetForm: FunctionComponent = () => {
                                             label={formatMessage(
                                                 MESSAGES[node],
                                             )}
-                                            name={`${node}${WORKFLOW_SUFFIX}`}
+                                            name={`processes[${processIndex}].${node}${WORKFLOW_SUFFIX}`}
                                             component={DateInput}
                                             fullWidth
                                             disabled={disableEdition}
@@ -307,7 +321,7 @@ export const BudgetForm: FunctionComponent = () => {
                                             label={formatMessage(
                                                 MESSAGES[node],
                                             )}
-                                            name={`${node}${WORKFLOW_SUFFIX}`}
+                                            name={`processes[${processIndex}].${node}${WORKFLOW_SUFFIX}`}
                                             component={DateInput}
                                             fullWidth
                                             disabled={disableEdition}
@@ -335,45 +349,45 @@ export const BudgetForm: FunctionComponent = () => {
                     </Box>
                     <Box mb={2}>
                         <Field
-                            name="payment_mode"
+                            name={`processes[${processIndex}].payment_mode`}
                             component={PaymentField}
                             fullWidth
                         />
                     </Box>
                     <Field
                         label={formatMessage(MESSAGES.disbursedToCoWho)}
-                        name="who_disbursed_to_co_at"
+                        name={`processes[${processIndex}].who_disbursed_to_co_at`}
                         component={DateInput}
                         fullWidth
                     />
                     <Field
                         label={formatMessage(MESSAGES.disbursedToMohWho)}
-                        name="who_disbursed_to_moh_at"
+                        name={`processes[${processIndex}].who_disbursed_to_moh_at`}
                         component={DateInput}
                         fullWidth
                     />
                     <Field
                         label={formatMessage(MESSAGES.disbursedToCoUnicef)}
-                        name="unicef_disbursed_to_co_at"
+                        name={`processes[${processIndex}].unicef_disbursed_to_co_at`}
                         component={DateInput}
                         fullWidth
                     />
                     <Field
                         label={formatMessage(MESSAGES.disbursedToMohUnicef)}
-                        name="unicef_disbursed_to_moh_at"
+                        name={`processes[${processIndex}].unicef_disbursed_to_moh_at`}
                         component={DateInput}
                         fullWidth
                     />
                     <Field
                         label={formatMessage(MESSAGES.district_count)}
-                        name="district_count"
+                        name={`processes[${processIndex}].district_count`}
                         component={TextInput}
                         className={classes.input}
                     />
 
                     <Field
                         label={formatMessage(MESSAGES.noRegretFund)}
-                        name="no_regret_fund_amount"
+                        name={`processes[${processIndex}].no_regret_fund_amount`}
                         component={TextInput}
                         className={classes.input}
                     />

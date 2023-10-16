@@ -31,7 +31,10 @@ import {
     riskAssessmentFormFields,
 } from '../RiskAssessment/RiskAssessmentForm';
 import { ScopeForm, scopeFormFields } from '../Scope/ScopeForm.tsx';
-import { BudgetForm, budgetFormFields } from '../Budget/BudgetForm.tsx';
+import {
+    BudgetFormContainer,
+    budgetFormFields,
+} from '../Budget/BudgetFormContainer.tsx';
 import { PreparednessForm } from '../Preparedness/PreparednessForm';
 import { Form } from '../../../components/Form';
 import { RoundsForm, roundFormFields } from '../Rounds/RoundsForm';
@@ -51,11 +54,21 @@ import { useGetCampaign } from '../hooks/api/useGetCampaign';
 import { compareArraysValues } from '../../../utils/compareArraysValues.ts';
 import { PolioDialogTabs } from './PolioDialogTabs.tsx';
 
+//  TO REMOVE
+import processes from '../../Budget/Processes/hooks/api/processes.json';
+
 const CreateEditDialog = ({ isOpen, onClose, campaignId }) => {
     const { mutate: saveCampaign } = useSaveCampaign();
-    const { data: selectedCampaign, isFetching } = useGetCampaign(
-        isOpen && campaignId,
-    );
+
+    //  TO put back
+    // const { data: selectedCampaign, isFetching } = useGetCampaign(isOpen && campaignId);
+
+    //  TO REMOVE
+    const { data, isFetching } = useGetCampaign(isOpen && campaignId);
+    const selectedCampaign = {
+        ...data,
+        processes,
+    };
 
     const { data: campaignLogs } = useGetCampaignLogs(
         selectedCampaign?.id,
@@ -94,6 +107,7 @@ const CreateEditDialog = ({ isOpen, onClose, campaignId }) => {
         budget_current_state_key: '-',
         detection_status: 'PENDING',
         risk_assessment_status: 'TO_SUBMIT',
+        processes: [],
     };
 
     // Merge inplace default values with the one we get from the campaign.
@@ -162,9 +176,9 @@ const CreateEditDialog = ({ isOpen, onClose, campaignId }) => {
             },
             {
                 title: formatMessage(MESSAGES.budget),
-                form: BudgetForm,
+                form: BudgetFormContainer,
                 hasTabError: compareArraysValues(
-                    budgetFormFields(selectedCampaign?.rounds ?? []),
+                    budgetFormFields(selectedCampaign?.processes ?? []),
                     formik.errors,
                 ),
                 key: 'budget',
@@ -205,7 +219,7 @@ const CreateEditDialog = ({ isOpen, onClose, campaignId }) => {
         !isFormChanged ||
         (isFormChanged && !formik.isValid) ||
         formik.isSubmitting;
-
+    console.log('errors', formik.errors);
     return (
         <Dialog
             fullWidth

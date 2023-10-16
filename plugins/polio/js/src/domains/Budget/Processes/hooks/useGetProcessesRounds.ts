@@ -1,8 +1,9 @@
 import { useCallback } from 'react';
 import uniqWith from 'lodash/uniqWith';
 import { isEqual } from 'lodash';
-import { BudgetProcess, Round } from '../types';
+import { BudgetProcess } from '../types';
 import { useFormatRound } from './useFormatRound';
+import { Round } from '../../../Campaigns/Scope/Scopes/types';
 
 export const useGetProcessesRounds = (): ((
     // eslint-disable-next-line no-unused-vars

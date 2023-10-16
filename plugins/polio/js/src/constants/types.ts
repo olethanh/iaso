@@ -2,6 +2,7 @@ import { Pagination, IntlFormatMessage } from 'bluesquare-components';
 import { Nullable } from '../../../../../hat/assets/js/apps/Iaso/types/utils';
 import { Profile } from '../../../../../hat/assets/js/apps/Iaso/utils/usersUtils';
 import { ReasonForDelay } from '../domains/Campaigns/Rounds/ReasonForDelayModal/hooks/reasons';
+import { BudgetProcess } from '../domains/Budget/Processes/types';
 
 /* eslint-disable camelcase */
 export type FormatForNFMArgs<T> = {
@@ -345,19 +346,10 @@ export type Campaign = {
     doses_requested: Nullable<number>;
     preparedness_spreadsheet_url: Nullable<string>;
     preparedness_sync_status: PreparednessSyncStatus;
-    budget_status: Nullable<BudgetStatusDeprecated>;
-    budget_responsible: Nullable<ResponsibleLevel>;
     is_test: boolean;
-    budget_current_state_key: string;
-    budget_current_state_label: Nullable<string>;
-    who_disbursed_to_co_at: Nullable<string>; // date
-    who_disbursed_to_moh_at: Nullable<string>; // date
-    unicef_disbursed_to_co_at: Nullable<string>; // date
-    unicef_disbursed_to_moh_at: Nullable<string>; // date
     eomg: Nullable<string>; // date
     no_regret_fund_amount: Nullable<number>; // decimal
     payment_mode: Nullable<PaymentMode>;
-    district_count: Nullable<number>;
     budget_rrt_oprrt_approval_at: Nullable<string>; // date
     budget_submitted_at: Nullable<string>; // date
     is_preventive: boolean;
@@ -366,6 +358,7 @@ export type Campaign = {
     country: Nullable<number>;
     group: Nullable<number>; // Doesn't appear nullbale in swagger but had anull value in payload
     last_budget_event: Nullable<number>;
+    processes: BudgetProcess[];
 };
 
 export type MergedShapeProperties = {
