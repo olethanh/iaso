@@ -139,7 +139,7 @@ class OrgUnitType(models.Model):
             res["sub_unit_types"] = sub_unit_types
         return res
 
-    def as_dict_for_completeness_stats(self):
+    def as_minimal_dict(self):
         return {
             "name": self.name,
             "id": self.id,
@@ -474,14 +474,14 @@ class OrgUnit(TreeModel):
             "org_unit_type": self.org_unit_type.name,
         }
 
-    def as_dict_for_completeness_stats_with_parent(self):
+    def as_minimal_dict_with_parent(self):
         return {
             "name": self.name,
             "id": self.id,
-            "parent": self.parent.as_dict_for_completeness_stats() if self.parent else None,
+            "parent": self.parent.as_minimal_dict() if self.parent else None,
         }
 
-    def as_dict_for_completeness_stats(self):
+    def as_minimal_dict(self):
         return {
             "name": self.name,
             "id": self.id,
