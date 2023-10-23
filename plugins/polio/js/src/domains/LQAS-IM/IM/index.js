@@ -11,6 +11,7 @@ import TopBar from 'Iaso/components/nav/TopBarComponent';
 import { oneOf, PropTypes } from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { push } from 'react-router-redux';
+import { useParams } from 'react-router';
 import { DistrictsNotFound } from '../shared/DistrictsNotFound.tsx';
 import { Filters } from '../shared/Filters.tsx';
 import { GraphTitle } from '../shared/GraphTitle.tsx';
@@ -23,7 +24,7 @@ import { useImData } from './hooks/useImData.ts';
 import MESSAGES from '../../../constants/messages';
 import { BadRoundNumbers } from '../shared/BadRoundNumber.tsx';
 import { makeDropdownOptions } from '../shared/LqasIm.tsx';
-import { genUrl } from '../../../../../../../hat/assets/js/apps/Iaso/routing/routing.ts';
+import { useGenUrl } from '../../../../../../../hat/assets/js/apps/Iaso/routing/routing.ts';
 import { commaSeparatedIdsToArray } from '../../../../../../../hat/assets/js/apps/Iaso/utils/forms';
 import { defaultRounds, paperElevation } from '../shared/constants.ts';
 
@@ -34,11 +35,12 @@ const styles = theme => ({
 
 const useStyles = makeStyles(styles);
 
-export const ImStats = ({ imType, router }) => {
-    const { campaign, country, rounds } = router.params;
+export const ImStats = ({ imType }) => {
+    const { campaign, country, rounds } = useParams();
     const { formatMessage } = useSafeIntl();
     const classes = useStyles();
     const dispatch = useDispatch();
+    const genUrl = useGenUrl();
 
     const [selectedRounds, setSelectedRounds] = useState(
         rounds ? commaSeparatedIdsToArray(rounds) : defaultRounds,
@@ -63,12 +65,12 @@ export const ImStats = ({ imType, router }) => {
             const updatedSelection = [...selectedRounds];
             updatedSelection[index] = value;
             setSelectedRounds(updatedSelection);
-            const url = genUrl(router, {
+            const url = genUrl({
                 rounds: updatedSelection,
             });
             dispatch(push(url));
         },
-        [dispatch, router, selectedRounds],
+        [dispatch, genUrl, selectedRounds],
     );
 
     const divider = (
@@ -254,5 +256,4 @@ ImStats.defaultProps = {
 
 ImStats.propTypes = {
     imType: oneOf(['imGlobal', 'imIHH', 'imOHH']),
-    router: PropTypes.object.isRequired,
 };

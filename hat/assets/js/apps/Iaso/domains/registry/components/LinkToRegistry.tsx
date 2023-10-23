@@ -6,7 +6,7 @@ import {
     useKeyPressListener,
 } from 'bluesquare-components';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 
 import { userHasPermission } from '../../users/utils';

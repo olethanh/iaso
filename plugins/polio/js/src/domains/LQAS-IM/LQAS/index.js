@@ -11,6 +11,7 @@ import { DisplayIfUserHasPerm } from 'Iaso/components/DisplayIfUserHasPerm';
 import TopBar from 'Iaso/components/nav/TopBarComponent';
 import { useDispatch } from 'react-redux';
 import { push } from 'react-router-redux';
+import { useParams } from 'react-router';
 import { Filters } from '../shared/Filters.tsx';
 import { CaregiversTable } from '../shared/CaregiversTable.tsx';
 import { GraphTitle } from '../shared/GraphTitle.tsx';
@@ -24,7 +25,7 @@ import { LqasOverviewContainer } from './CountryOverview/LqasOverviewContainer.t
 import MESSAGES from '../../../constants/messages';
 import { BadRoundNumbers } from '../shared/BadRoundNumber.tsx';
 import { makeDropdownOptions } from '../shared/LqasIm.tsx';
-import { genUrl } from '../../../../../../../hat/assets/js/apps/Iaso/routing/routing.ts';
+import { useGenUrl } from '../../../../../../../hat/assets/js/apps/Iaso/routing/routing.ts';
 import { commaSeparatedIdsToArray } from '../../../../../../../hat/assets/js/apps/Iaso/utils/forms';
 import { defaultRounds, paperElevation } from '../shared/constants.ts';
 import { useLqasIm } from '../shared/requests.ts';
@@ -37,11 +38,12 @@ const styles = theme => ({
 
 const useStyles = makeStyles(styles);
 
-export const Lqas = ({ router }) => {
+export const Lqas = () => {
     const { formatMessage } = useSafeIntl();
+    const genUrl = useGenUrl();
     const classes = useStyles();
     const dispatch = useDispatch();
-    const { campaign, country, rounds } = router.params;
+    const { campaign, country, rounds } = useParams;
     const [selectedRounds, setSelectedRounds] = useState(
         rounds ? commaSeparatedIdsToArray(rounds) : defaultRounds,
     );
@@ -65,12 +67,12 @@ export const Lqas = ({ router }) => {
             const updatedSelection = [...selectedRounds];
             updatedSelection[index] = value;
             setSelectedRounds(updatedSelection);
-            const url = genUrl(router, {
+            const url = genUrl({
                 rounds: updatedSelection,
             });
             dispatch(push(url));
         },
-        [dispatch, router, selectedRounds],
+        [dispatch, genUrl, selectedRounds],
     );
 
     const divider = (
@@ -108,7 +110,6 @@ export const Lqas = ({ router }) => {
                                 onRoundChange={onRoundChange(index)}
                                 options={dropDownOptions}
                                 side={index === 0 ? Sides.left : Sides.right}
-                                router={router}
                             />
                         </Grid>
                     ))}
@@ -262,8 +263,4 @@ export const Lqas = ({ router }) => {
             </Box>
         </>
     );
-};
-
-Lqas.propTypes = {
-    router: PropTypes.object.isRequired,
 };

@@ -59,6 +59,8 @@ export const useFilterState = ({
             if (withPagination) {
                 tempParams.page = '1';
             }
+            console.log('baseUrl', baseUrl);
+            console.log('tempParams', tempParams);
             if (saveSearchInHistory) {
                 dispatch(redirectTo(baseUrl, tempParams));
             } else {

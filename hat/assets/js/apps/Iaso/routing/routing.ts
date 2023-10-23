@@ -1,10 +1,16 @@
-import { formatPattern, Router } from 'react-router';
+import { useLocation, useParams } from 'react-router';
+import { makeUrlWithParams } from '../libs/utils';
 
-/* Modify the parameters for the current page and return the new url */
-const genUrl = (
-    router: Router,
-    newParams: Record<string, string | number | null | undefined>,
-): string =>
-    formatPattern(router.routes[0].path, { ...router.params, ...newParams });
-
-export { genUrl };
+export const useGenUrl = (): ((
+    // eslint-disable-next-line no-unused-vars
+    newParams: Record<string, string | number | undefined>,
+) => string) => {
+    const params = useParams();
+    const location = useLocation();
+    return newParams => {
+        return makeUrlWithParams(location.pathname, {
+            ...params,
+            ...newParams,
+        });
+    };
+};

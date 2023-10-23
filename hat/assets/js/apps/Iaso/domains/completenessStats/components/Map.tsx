@@ -37,9 +37,8 @@ import { getDirectLegend, getLegend, MapLegend } from './MapLegend';
 import { CompletenessSelect } from './CompletenessSelect';
 
 import MESSAGES from '../messages';
-import { Router } from '../../../types/general';
 
-import { usetGetParentPageUrl } from '../utils';
+import { useGetParentPageUrl } from '../utils';
 import {
     AssignmentsResult,
     useGetAssignments,
@@ -55,7 +54,6 @@ type Props = {
     isLoading: boolean;
     params: CompletenessRouterParams;
     selectedFormId: number;
-    router: Router;
 };
 
 const boundsOptions = {
@@ -84,7 +82,6 @@ export const Map: FunctionComponent<Props> = ({
     isLoading,
     params,
     selectedFormId,
-    router,
 }) => {
     const { planningId } = params;
     const classes: Record<string, string> = useStyles();
@@ -173,7 +170,7 @@ export const Map: FunctionComponent<Props> = ({
         [planningId, showDirectCompleteness, isLoadingAssignments, assignments],
     );
 
-    const getParentPageUrl = usetGetParentPageUrl(router);
+    const getParentPageUrl = useGetParentPageUrl();
     return (
         <section className={classes.mapContainer}>
             <Box position="relative">

@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { Button } from '@material-ui/core';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { useStyles } from '../../styles/theme';
 
 type Props = {

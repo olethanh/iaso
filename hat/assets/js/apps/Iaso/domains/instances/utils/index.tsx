@@ -5,7 +5,7 @@ import React, {
     useMemo,
     useCallback,
 } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import moment from 'moment';
 import { Tooltip } from '@material-ui/core';
 import CompareArrowsIcon from '@material-ui/icons/CompareArrows';

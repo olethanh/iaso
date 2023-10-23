@@ -4,7 +4,6 @@ import { useSafeIntl, commonStyles } from 'bluesquare-components';
 import { useDispatch } from 'react-redux';
 import { LIST, MAP, paperElevation } from '../../../shared/constants';
 import { LqasAfroMap } from './LqasAfroMap';
-import { Router } from '../../../../../../../../../hat/assets/js/apps/Iaso/types/general';
 import MESSAGES from '../../../../../constants/messages';
 import { AfroMapParams, Side } from '../types';
 import { redirectToReplace } from '../../../../../../../../../hat/assets/js/apps/Iaso/routing/actions';
@@ -32,7 +31,6 @@ type Props = {
     selectedRound: string;
     // eslint-disable-next-line no-unused-vars
     onRoundChange: (value: string, side: Side) => void;
-    router: Router;
     side: Side;
     params: AfroMapParams;
     // eslint-disable-next-line no-unused-vars
@@ -42,15 +40,13 @@ type Props = {
 export const LqasAfroMapWithSelector: FunctionComponent<Props> = ({
     selectedRound,
     onRoundChange,
-    router,
     side,
     params,
     onDisplayedShapeChange,
 }) => {
     const { formatMessage } = useSafeIntl();
     const dispatch = useDispatch();
-    const paramTab =
-        side === Sides.left ? router.params.leftTab : router.params.rightTab;
+    const paramTab = side === Sides.left ? params.leftTab : params.rightTab;
     const classes: Record<string, string> = useStyles();
     const [tab, setTab] = useState(paramTab ?? MAP);
 
@@ -60,12 +56,12 @@ export const LqasAfroMapWithSelector: FunctionComponent<Props> = ({
             const tabKey = side === Sides.left ? 'leftTab' : 'rightTab';
             setTab(newtab);
             const newParams = {
-                ...router.params,
+                ...params,
                 [tabKey]: newtab,
             };
             dispatch(redirectToReplace(LQAS_AFRO_MAP_URL, newParams));
         },
-        [router.params, dispatch, side],
+        [side, params, dispatch],
     );
     // TABS
     return (
@@ -100,7 +96,7 @@ export const LqasAfroMapWithSelector: FunctionComponent<Props> = ({
                         tab === MAP ? classes.mapContainer : classes.hidden
                     }
                 >
-                    <LqasAfroMap router={router} side={side} />
+                    <LqasAfroMap side={side} />
                 </Box>
 
                 <Box
@@ -110,7 +106,7 @@ export const LqasAfroMapWithSelector: FunctionComponent<Props> = ({
                         tab === LIST ? classes.mapContainer : classes.hidden
                     }
                 >
-                    <LqasAfroList router={router} side={side} />{' '}
+                    <LqasAfroList side={side} />{' '}
                 </Box>
             </Paper>
         </LqasAfroOverviewContextProvider>

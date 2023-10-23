@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
@@ -27,7 +26,8 @@ import { useAbortController } from '../../libs/apiHooks.ts';
 export const useSingleTableParams = params => {
     return useMemo(() => {
         const { accountId, ...paramsToUse } = params;
-        return paramsToUse;
+        // return paramsToUse;
+        return params;
     }, [params]);
 };
 
@@ -370,4 +370,4 @@ SingleTable.propTypes = {
     filtersColumnsCount: PropTypes.number,
 };
 
-export default withRouter(SingleTable);
+export default SingleTable;

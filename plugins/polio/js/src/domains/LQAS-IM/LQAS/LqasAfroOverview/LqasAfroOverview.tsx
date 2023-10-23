@@ -3,12 +3,13 @@ import { Box, Grid } from '@material-ui/core';
 import { useSafeIntl } from 'bluesquare-components';
 import { useDispatch } from 'react-redux';
 import { push } from 'react-router-redux';
+import { useParams } from 'react-router';
 import TopBar from '../../../../../../../../hat/assets/js/apps/Iaso/components/nav/TopBarComponent';
 import { LqasAfroMapFilters } from './Filters/LqasAfroMapFilters';
 import { useStyles } from '../../../../styles/theme';
 import { Router } from '../../../../../../../../hat/assets/js/apps/Iaso/types/general';
 import { AfroMapParams } from './types';
-import { genUrl } from '../../../../../../../../hat/assets/js/apps/Iaso/routing/routing';
+import { useGenUrl } from '../../../../../../../../hat/assets/js/apps/Iaso/routing/routing';
 import MESSAGES from '../../../../constants/messages';
 import { LqasAfroMapWithSelector } from './Map/LqasAfroMapWithSelector';
 import { redirectToReplace } from '../../../../../../../../hat/assets/js/apps/Iaso/routing/actions';
@@ -17,12 +18,14 @@ import { LQAS_AFRO_MAP_URL } from '../../../../constants/routes';
 type Props = {
     router: Router;
 };
-export const LqasAfroOverview: FunctionComponent<Props> = ({ router }) => {
+export const LqasAfroOverview: FunctionComponent<Props> = () => {
     const classes: Record<string, string> = useStyles();
+    const genUrl = useGenUrl();
+    const params = useParams();
     const { formatMessage } = useSafeIntl();
     const dispatch = useDispatch();
     const [selectedRounds, setSelectedRounds] = useState(
-        router.params?.rounds?.split(',') ?? ['penultimate', 'latest'],
+        params?.rounds?.split(',') ?? ['penultimate', 'latest'],
     );
 
     const onRoundChange = useCallback(
@@ -34,17 +37,17 @@ export const LqasAfroOverview: FunctionComponent<Props> = ({ router }) => {
                 updatedSelection[1] = value;
             }
             setSelectedRounds(updatedSelection);
-            const url = genUrl(router, {
+            const url = genUrl({
                 rounds: updatedSelection,
             });
             dispatch(push(url));
         },
-        [dispatch, router, selectedRounds],
+        [dispatch, genUrl, selectedRounds],
     );
     const onDisplayedShapeChange = useCallback(
         (value, side) => {
             const tempParams = {
-                ...router.params,
+                ...params,
             };
             if (side === 'left') {
                 tempParams.displayedShapesLeft = value;
@@ -59,7 +62,7 @@ export const LqasAfroOverview: FunctionComponent<Props> = ({ router }) => {
                 ),
             );
         },
-        [dispatch, router],
+        [dispatch, params],
     );
 
     return (
@@ -69,7 +72,7 @@ export const LqasAfroOverview: FunctionComponent<Props> = ({ router }) => {
                 displayBackButton={false}
             />
             <Box className={classes.containerFullHeightNoTabPadded}>
-                <LqasAfroMapFilters params={router.params as AfroMapParams} />
+                <LqasAfroMapFilters params={params as AfroMapParams} />
 
                 <Box mt={2}>
                     <Grid container spacing={2} direction="row">
@@ -77,9 +80,8 @@ export const LqasAfroOverview: FunctionComponent<Props> = ({ router }) => {
                             <LqasAfroMapWithSelector
                                 onRoundChange={onRoundChange}
                                 side="left"
-                                router={router}
                                 selectedRound={selectedRounds[0]}
-                                params={router.params as AfroMapParams}
+                                params={params as AfroMapParams}
                                 onDisplayedShapeChange={onDisplayedShapeChange}
                             />
                         </Grid>
@@ -87,9 +89,8 @@ export const LqasAfroOverview: FunctionComponent<Props> = ({ router }) => {
                             <LqasAfroMapWithSelector
                                 onRoundChange={onRoundChange}
                                 side="right"
-                                router={router}
                                 selectedRound={selectedRounds[1]}
-                                params={router.params as AfroMapParams}
+                                params={params as AfroMapParams}
                                 onDisplayedShapeChange={onDisplayedShapeChange}
                             />
                         </Grid>

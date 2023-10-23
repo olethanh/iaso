@@ -13,19 +13,19 @@ import {
 import { TableCell, TableSortLabel, Box } from '@material-ui/core';
 
 import { replace } from 'react-router-redux';
-import { withRouter } from 'react-router';
 import { colSpanTitle, defaultStaticColWidth } from '../constants';
 import { useStyles } from '../Styles';
 import MESSAGES from '../../../../constants/messages';
-import { genUrl } from '../../../../../../../../hat/assets/js/apps/Iaso/routing/routing';
+import { useGenUrl } from '../../../../../../../../hat/assets/js/apps/Iaso/routing/routing.ts';
 import { useStaticFields } from '../../hooks/useStaticFields';
 
-const HeadStaticFieldsCells = ({ orders, router, isPdf }) => {
+export const HeadStaticFieldsCells = ({ orders, isPdf }) => {
     const classes = useStyles();
     const { formatMessage } = useSafeIntl();
     const dispatch = useDispatch();
     const shiftKeyIsDown = useKeyPressListener('Shift');
     const ordersArray = getOrderArray(orders);
+    const genUrl = useGenUrl();
     const handleSort = (field, existingSort) => {
         let desc = true;
         if (existingSort && existingSort.desc) {
@@ -45,7 +45,7 @@ const HeadStaticFieldsCells = ({ orders, router, isPdf }) => {
         }
         newSort.push(currentSort);
 
-        const url = genUrl(router, {
+        const url = genUrl({
             order: getSort(newSort),
         });
 
@@ -113,6 +113,3 @@ HeadStaticFieldsCells.propTypes = {
     orders: PropTypes.string.isRequired,
     isPdf: PropTypes.bool.isRequired,
 };
-
-const wrappedHeadStaticFieldsCells = withRouter(HeadStaticFieldsCells);
-export { wrappedHeadStaticFieldsCells as HeadStaticFieldsCells };

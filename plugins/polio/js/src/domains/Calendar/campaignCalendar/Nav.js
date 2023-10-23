@@ -18,21 +18,22 @@ import ArrowBack from '@material-ui/icons/ArrowBack';
 import Today from '@material-ui/icons/Today';
 import { useSafeIntl } from 'bluesquare-components';
 
-import { Link, withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
 
 import { useStyles } from './Styles';
 import { dateFormat } from './constants';
 
-import { genUrl } from '../../../../../../../hat/assets/js/apps/Iaso/routing/routing.ts';
+import { useGenUrl } from '../../../../../../../hat/assets/js/apps/Iaso/routing/routing.ts';
 import MESSAGES from '../../../constants/messages';
 
-const Nav = ({ currentMonday, router, currentDate }) => {
+const Nav = ({ currentMonday, currentDate }) => {
     const classes = useStyles();
+    const genUrl = useGenUrl();
     const dispatch = useDispatch();
     const { formatMessage } = useSafeIntl();
     const [anchorEl, setAnchorEl] = useState(null);
     const urlForDate = date =>
-        genUrl(router, {
+        genUrl({
             currentDate: date.format(dateFormat),
         });
 
@@ -41,7 +42,7 @@ const Nav = ({ currentMonday, router, currentDate }) => {
     };
     const handleDateChange = newDate => {
         handleClickDate();
-        const url = genUrl(router, {
+        const url = genUrl({
             currentDate: newDate,
         });
         dispatch(replace(url));
@@ -143,8 +144,7 @@ const Nav = ({ currentMonday, router, currentDate }) => {
 
 Nav.propTypes = {
     currentMonday: PropTypes.object.isRequired,
-    router: PropTypes.object.isRequired,
     currentDate: PropTypes.object.isRequired,
 };
-const wrappedNav = withRouter(Nav);
+const wrappedNav = Nav;
 export { wrappedNav as Nav };

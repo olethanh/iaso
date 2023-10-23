@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { withStyles, Paper } from '@material-ui/core';
-import { Link } from 'react-router';
 
 import PropTypes from 'prop-types';
 
@@ -86,7 +85,12 @@ function DocumentsItemComponent(props) {
     const { classes, file } = props;
     const fileName = getFileName(file.path);
     return (
-        <a href={file.path} target="_blank" className={classes.link}>
+        <a
+            href={file.path}
+            target="_blank"
+            className={classes.link}
+            rel="noreferrer"
+        >
             <Paper className={classes.paper}>
                 {renderIcon(file, classes)}
                 <span className={classes.fileInfo}>

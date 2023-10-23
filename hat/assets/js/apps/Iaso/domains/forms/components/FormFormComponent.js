@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Box, Grid, makeStyles, Typography } from '@material-ui/core';
 import { useSafeIntl } from 'bluesquare-components';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { History } from '@material-ui/icons';
 import FormatListBulleted from '@material-ui/icons/FormatListBulleted';
 import { baseUrls } from '../../../constants/urls';

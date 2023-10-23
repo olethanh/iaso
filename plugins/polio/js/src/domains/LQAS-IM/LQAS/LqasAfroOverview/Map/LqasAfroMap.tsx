@@ -2,6 +2,7 @@ import React, { FunctionComponent, useState, useMemo, useContext } from 'react';
 import { MapContainer } from 'react-leaflet';
 
 // import { Bounds } from '../../../../../../../../../hat/assets/js/apps/Iaso/utils/map/mapUtils';
+import { useParams } from 'react-router';
 import { CustomZoomControl } from '../../../../../../../../../hat/assets/js/apps/Iaso/components/maps/tools/CustomZoomControl';
 import TILES from '../../../../../../../../../hat/assets/js/apps/Iaso/constants/mapTiles';
 
@@ -9,20 +10,18 @@ import { CustomTileLayer } from '../../../../../../../../../hat/assets/js/apps/I
 import { Tile } from '../../../../../../../../../hat/assets/js/apps/Iaso/components/maps/tools/TilesSwitchControl';
 import { LqasAfroMapPanesContainer } from './LqasAfroMapPanesContainer';
 import { AfroMapParams, Side } from '../types';
-import { Router } from '../../../../../../../../../hat/assets/js/apps/Iaso/types/general';
 import { LqasAfroMapLegend } from './LqasAfroMapLegend';
 import { defaultViewport } from '../../../../Calendar/campaignCalendar/map/constants';
 import { LqasAfroOverviewContext } from '../Context/LqasAfroOverviewContext';
 
 type Props = {
-    router: Router;
     side: Side;
 };
 
-export const LqasAfroMap: FunctionComponent<Props> = ({ router, side }) => {
+export const LqasAfroMap: FunctionComponent<Props> = ({ side }) => {
     const { bounds, setBounds } = useContext(LqasAfroOverviewContext);
     const [currentTile, setCurrentTile] = useState<Tile>(TILES.osm);
-    const { params } = router;
+    const params = useParams();
     const defaultCenter = useMemo(
         () =>
             (side === 'left'

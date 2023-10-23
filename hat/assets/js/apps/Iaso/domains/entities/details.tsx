@@ -9,7 +9,7 @@ import {
 } from 'bluesquare-components';
 import { Box, Button, Divider, Grid, makeStyles } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import TopBar from '../../components/nav/TopBarComponent';
 import MESSAGES from './messages';
 import { redirectTo, redirectToReplace } from '../../routing/actions';

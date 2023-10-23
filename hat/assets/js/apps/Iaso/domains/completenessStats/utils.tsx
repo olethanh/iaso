@@ -1,9 +1,9 @@
-import { Router } from '../../types/general';
-import { genUrl } from '../../routing/routing';
+import { useGenUrl } from '../../routing/routing';
 
-export const usetGetParentPageUrl = (router: Router) => {
+export const useGetParentPageUrl = () => {
+    const genUrl = useGenUrl();
     return (parentOrgUnitId?: number | string): string =>
-        genUrl(router, {
+        genUrl({
             parentId: parentOrgUnitId ? `${parentOrgUnitId}` : undefined,
             page: null,
         });

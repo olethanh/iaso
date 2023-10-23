@@ -2,7 +2,7 @@ import React from 'react';
 import HourglassEmpty from '@material-ui/icons/HourglassEmpty';
 import ErrorOutline from '@material-ui/icons/ErrorOutline';
 import CheckCircleOutline from '@material-ui/icons/CheckCircleOutline';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 import {
     IconButton as IconButtonComponent,

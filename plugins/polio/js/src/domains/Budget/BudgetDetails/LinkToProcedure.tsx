@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { useSafeIntl } from 'bluesquare-components';
 import { Tooltip, makeStyles } from '@material-ui/core';
 import HelpIcon from '@material-ui/icons/Help';

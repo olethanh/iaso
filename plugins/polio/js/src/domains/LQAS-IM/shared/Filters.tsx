@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useMemo, useState } from 'react';
 // @ts-ignore
 import { Select, useSafeIntl } from 'bluesquare-components';
-import { withRouter } from 'react-router';
+import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { replace } from 'react-router-redux';
 
@@ -10,7 +10,7 @@ import { Box, Grid, IconButton } from '@material-ui/core';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import MESSAGES from '../../../constants/messages';
 import { makeCampaignsDropDown } from '../../../utils/index';
-import { genUrl } from '../../../../../../../hat/assets/js/apps/Iaso/routing/routing';
+import { useGenUrl } from '../../../../../../../hat/assets/js/apps/Iaso/routing/routing';
 import { useGetLqasImCountriesOptions } from './hooks/api/useGetLqasImCountriesOptions';
 import { RefreshLqasData } from './RefreshLqasData';
 
@@ -23,12 +23,9 @@ type FiltersState = {
     campaign: string | undefined;
     country: number | undefined;
 };
-type Router = {
-    params: Params;
-};
+
 type Props = {
     isFetching: boolean;
-    router: Router;
     campaigns: any[];
     campaignsFetching: boolean;
     category: 'lqas' | 'im';
@@ -36,14 +33,14 @@ type Props = {
 
 const Filters: FunctionComponent<Props> = ({
     isFetching,
-    router,
     campaigns,
     campaignsFetching,
     category,
 }) => {
     const { formatMessage } = useSafeIntl();
     const dispatch = useDispatch();
-    const { params } = router;
+    const params = useParams() as Params;
+    const genUrl = useGenUrl();
 
     const [filters, setFilters] = useState<FiltersState>({
         campaign: params.campaign,
@@ -71,7 +68,7 @@ const Filters: FunctionComponent<Props> = ({
         }
 
         setFilters(newFilters);
-        const url = genUrl(router, newFilters);
+        const url = genUrl(newFilters);
         dispatch(replace(url));
     };
     const campaignObj = campaigns.find(c => c.obr_name === campaign);
@@ -132,5 +129,5 @@ const Filters: FunctionComponent<Props> = ({
     );
 };
 
-const wrappedFilters = withRouter(Filters);
+const wrappedFilters = Filters;
 export { wrappedFilters as Filters };

@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { FunctionComponent, useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Alert from '@material-ui/lab/Alert';
 import { Box, Grid, makeStyles, Typography } from '@material-ui/core';

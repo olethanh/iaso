@@ -4,7 +4,7 @@ import {
     IconButton as IconButtonComponent,
     textPlaceholder,
 } from 'bluesquare-components';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import GroupsDialog from './components/GroupsDialog';
 import DeleteDialog from '../../../components/dialogs/DeleteDialogComponent';
 import MESSAGES from './messages';

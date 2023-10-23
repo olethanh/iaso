@@ -7,7 +7,6 @@ import {
 import { ArrowUpward, AccountTree } from '@material-ui/icons';
 import { Box, LinearProgress } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
-import { Router } from 'react-router';
 import MESSAGES from '../messages';
 import { userHasPermission } from '../../users/utils';
 import { useCurrentUser } from '../../../utils/usersUtils';
@@ -19,7 +18,7 @@ import {
     FormStatRow,
 } from '../types';
 import * as Permission from '../../../utils/permissions';
-import { usetGetParentPageUrl } from '../utils';
+import { useGetParentPageUrl } from '../utils';
 
 // From https://v4.mui.com/components/progress/
 const LinearProgressWithLabel = props => (
@@ -37,13 +36,12 @@ const LinearProgressWithLabel = props => (
 );
 
 export const useCompletenessStatsColumns = (
-    router: Router,
     params: CompletenessRouterParams,
     completenessStats?: CompletenessApiResponse,
 ): Column[] => {
     const currentUser = useCurrentUser();
 
-    const getParentPageUrl = usetGetParentPageUrl(router);
+    const getParentPageUrl = useGetParentPageUrl();
     const hasSubmissionPermission = userHasPermission(
         Permission.SUBMISSIONS,
         currentUser,

@@ -5,28 +5,27 @@ import React, {
     useCallback,
     useEffect,
 } from 'react';
-import { withRouter } from 'react-router';
 import FiltersIcon from '@material-ui/icons/FilterList';
 import { Box, Button, Grid } from '@material-ui/core';
 import { FormattedMessage } from 'react-intl';
 import { useDispatch } from 'react-redux';
 import { replace } from 'react-router-redux';
-import { genUrl } from '../../../../../../hat/assets/js/apps/Iaso/routing/routing';
+import { useParams } from 'react-router';
+import { useGenUrl } from '../../../../../../hat/assets/js/apps/Iaso/routing/routing';
 import MESSAGES from '../../constants/messages';
 import InputComponent from '../../../../../../hat/assets/js/apps/Iaso/components/forms/InputComponent';
 // import { useGetCountries } from '../../hooks/useGetCountries';
 
 type Props = {
-    router: any;
     disableOnlyDeleted: boolean;
 };
 
 const GroupedCampaignsFilter: FunctionComponent<Props> = ({
-    router,
     // TODO set to false shwoOnlyDeleted is implemented
     disableOnlyDeleted = true,
 }) => {
-    const { params } = router;
+    const params = useParams();
+    const genUrl = useGenUrl();
     const [filtersUpdated, setFiltersUpdated] = useState<boolean>(false);
     // const [countries, setCountries] = useState<string>(params.countries);
     const [search, setSearch] = useState<string>(params.search);
@@ -46,10 +45,10 @@ const GroupedCampaignsFilter: FunctionComponent<Props> = ({
                 search: search && search !== '' ? search : undefined,
                 showOnlyDeleted: showOnlyDeleted || undefined,
             };
-            const url = genUrl(router, urlParams);
+            const url = genUrl(urlParams);
             dispatch(replace(url));
         }
-    }, [dispatch, filtersUpdated, router, search, showOnlyDeleted]);
+    }, [dispatch, filtersUpdated, genUrl, search, showOnlyDeleted]);
 
     useEffect(() => {
         setFiltersUpdated(true);
@@ -123,5 +122,5 @@ const GroupedCampaignsFilter: FunctionComponent<Props> = ({
         </>
     );
 };
-const wrappedFilters = withRouter(GroupedCampaignsFilter);
+const wrappedFilters = GroupedCampaignsFilter;
 export { wrappedFilters as GroupedCampaignsFilter };

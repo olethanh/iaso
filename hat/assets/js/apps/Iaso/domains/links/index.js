@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { withRouter } from 'react-router';
+import { useHistory, useParams } from 'react-router-dom';
 import { Box, makeStyles } from '@material-ui/core';
 
 import PropTypes from 'prop-types';
@@ -32,8 +32,10 @@ const useStyles = makeStyles(() => ({
         },
     },
 }));
-export const Links = ({ params, router }) => {
+export const Links = () => {
+    const params = useParams();
     const intl = useSafeIntl();
+    const history = useHistory();
     const classes = useStyles();
     const dispatch = useDispatch();
     const prevPathname = useSelector(state => state.routerCustom.prevPathname);
@@ -96,7 +98,7 @@ export const Links = ({ params, router }) => {
             <TopBar
                 title={intl.formatMessage(MESSAGES.title)}
                 displayBackButton={displayBackButton}
-                goBack={() => router.goBack()}
+                goBack={() => history.goBack()}
             />
             <Box className={classes.table}>
                 <SingleTable
@@ -154,8 +156,7 @@ export const Links = ({ params, router }) => {
 };
 
 Links.propTypes = {
-    router: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,
 };
 
-export default withRouter(Links);
+export default Links;

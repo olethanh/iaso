@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 
+import { useLocation, useParams } from 'react-router';
 import SidebarMenu from '../../app/components/SidebarMenuComponent';
 
 import { redirectToReplace } from '../../../routing/actions.ts';
@@ -15,13 +16,9 @@ import { useCurrentUser } from '../../../utils/usersUtils.ts';
 import { WrongAccountModal } from './WrongAccountModal.tsx';
 import PageNoPerms from '../../../components/errors/PageNoPerms.tsx';
 
-const ProtectedRoute = ({
-    routeConfig,
-    allRoutes,
-    location,
-    component,
-    params,
-}) => {
+const ProtectedRoute = ({ routeConfig, allRoutes, component }) => {
+    const location = useLocation();
+    const params = useParams();
     const { featureFlag, permissions, isRootUrl, baseUrl } = routeConfig;
     const currentUser = useCurrentUser();
     const dispatch = useDispatch();
@@ -30,16 +27,16 @@ const ProtectedRoute = ({
         params.accountId && params.accountId !== `${currentUser.account.id}`,
     );
 
-    useEffect(() => {
-        if (!params.accountId && currentUser.account) {
-            dispatch(
-                redirectToReplace(baseUrl, {
-                    ...params,
-                    accountId: currentUser.account.id,
-                }),
-            );
-        }
-    }, [currentUser.account, baseUrl, params, dispatch]);
+    // useEffect(() => {
+    //     if (!params.accountId && currentUser.account) {
+    //         dispatch(
+    //             redirectToReplace(baseUrl, {
+    //                 ...params,
+    //                 accountId: currentUser.account.id,
+    //             }),
+    //         );
+    //     }
+    // }, [currentUser.account, baseUrl, params, dispatch]);
 
     useEffect(() => {
         // Use defined default language if it exists and if the user didn't set it manually
@@ -102,8 +99,6 @@ ProtectedRoute.defaultProps = {
 ProtectedRoute.propTypes = {
     component: PropTypes.node.isRequired,
     allRoutes: PropTypes.array,
-    location: PropTypes.object.isRequired,
-    params: PropTypes.object.isRequired,
     routeConfig: PropTypes.object.isRequired,
 };
 

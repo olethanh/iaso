@@ -4,10 +4,10 @@ import { FormattedMessage } from 'react-intl';
 import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import { replace } from 'react-router-redux';
+import { useParams } from 'react-router';
 
 import { Grid, Button, Box, useMediaQuery, useTheme } from '@material-ui/core';
 import FiltersIcon from '@material-ui/icons/FilterList';
-import { withRouter } from 'react-router';
 import { useSafeIntl } from 'bluesquare-components';
 import InputComponent from 'Iaso/components/forms/InputComponent';
 import DatesRange from 'Iaso/components/filters/DatesRange';
@@ -16,7 +16,7 @@ import MESSAGES from '../../../constants/messages';
 import { useGetCountries } from '../../../hooks/useGetCountries';
 import { useGetGroupedCampaigns } from '../../GroupedCampaigns/hooks/useGetGroupedCampaigns.ts';
 
-import { genUrl } from '../../../../../../../hat/assets/js/apps/Iaso/routing/routing.ts';
+import { useGenUrl } from '../../../../../../../hat/assets/js/apps/Iaso/routing/routing.ts';
 import {
     dateApiToDateRangePicker,
     dateRangePickerToDateApi,
@@ -39,14 +39,14 @@ const campaignTypeOptions = (formatMessage, showTest = false) => {
 };
 
 const Filters = ({
-    router,
     disableDates,
     disableOnlyDeleted,
     isCalendar,
     showTest,
 }) => {
     const { formatMessage } = useSafeIntl();
-    const { params } = router;
+    const genUrl = useGenUrl();
+    const params = useParams();
     const [filtersUpdated, setFiltersUpdated] = useState(false);
     const [countries, setCountries] = useState(params.countries);
     const [orgUnitGroups, setOrgUnitGroups] = useState(params.orgUnitGroups);
@@ -78,7 +78,7 @@ const Filters = ({
                 campaignGroups,
                 orgUnitGroups,
             };
-            const url = genUrl(router, urlParams);
+            const url = genUrl(urlParams);
             dispatch(replace(url));
         }
     }, [
@@ -282,12 +282,11 @@ Filters.defaultProps = {
 
 Filters.propTypes = {
     baseUrl: PropTypes.string,
-    router: PropTypes.object.isRequired,
     disableDates: PropTypes.bool,
     disableOnlyDeleted: PropTypes.bool,
     isCalendar: PropTypes.bool,
     showTest: PropTypes.bool,
 };
 
-const wrappedFilters = withRouter(Filters);
+const wrappedFilters = Filters;
 export { wrappedFilters as Filters };

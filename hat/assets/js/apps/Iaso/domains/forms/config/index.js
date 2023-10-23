@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid } from '@material-ui/core';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 import { IconButton as IconButtonComponent } from 'bluesquare-components';
 import FormatListBulleted from '@material-ui/icons/FormatListBulleted';

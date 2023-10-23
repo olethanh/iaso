@@ -7,7 +7,7 @@ import {
     useSafeIntl,
     useSkipEffectOnMount,
 } from 'bluesquare-components';
-import { withRouter } from 'react-router';
+import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { push } from 'react-router-redux';
 import { Box, Tooltip } from '@material-ui/core';
@@ -30,16 +30,17 @@ import { useRemoveCampaign } from './hooks/api/useRemoveCampaign';
 import { useRestoreCampaign } from './hooks/api/useRestoreCampaign';
 import { useStyles } from '../../styles/theme';
 import MESSAGES from '../../constants/messages';
-import { genUrl } from '../../../../../../hat/assets/js/apps/Iaso/routing/routing.ts';
+import { useGenUrl } from '../../../../../../hat/assets/js/apps/Iaso/routing/routing.ts';
 import { convertObjectToString } from '../../utils';
 import { DASHBOARD_BASE_URL } from '../../constants/routes';
 import { useSingleTableParams } from '../../../../../../hat/assets/js/apps/Iaso/components/tables/SingleTable';
 import { PageActionWithLink } from '../../components/Buttons/PageActionWithLink.tsx';
 import { ImportLine } from './ImportLine/ImportLine.tsx';
 
-const Dashboard = ({ router }) => {
-    const { params } = router;
+export const Dashboard = () => {
+    const params = useParams();
     const dispatch = useDispatch();
+    const genUrl = useGenUrl();
     const { formatMessage } = useSafeIntl();
 
     const [isCreateEditDialogOpen, setIsCreateEditDialogOpen] = useState(false);
@@ -81,18 +82,18 @@ const Dashboard = ({ router }) => {
     const openCreateEditDialog = useCallback(
         campaignId => {
             setIsCreateEditDialogOpen(true);
-            const url = genUrl(router, {
+            const url = genUrl({
                 campaignId,
             });
             dispatch(push(url));
         },
-        [setIsCreateEditDialogOpen, router, dispatch],
+        [genUrl, dispatch],
     );
 
     const closeCreateEditDialog = () => {
         setSelectedCampaignId(undefined);
         setIsCreateEditDialogOpen(false);
-        const url = genUrl(router, {
+        const url = genUrl({
             campaignId: undefined,
         });
         dispatch(push(url));
@@ -329,10 +330,3 @@ const Dashboard = ({ router }) => {
         </>
     );
 };
-
-Dashboard.propTypes = {
-    router: PropTypes.object.isRequired,
-};
-
-const wrappedDashboard = withRouter(Dashboard);
-export { wrappedDashboard as Dashboard };

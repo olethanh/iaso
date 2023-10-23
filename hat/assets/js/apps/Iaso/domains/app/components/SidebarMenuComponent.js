@@ -19,7 +19,7 @@ import {
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 import { injectIntl, commonStyles } from 'bluesquare-components';
 import { toggleSidebarMenu } from '../../../redux/sidebarMenuReducer';

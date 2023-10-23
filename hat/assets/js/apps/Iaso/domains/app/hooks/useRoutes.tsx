@@ -1,5 +1,5 @@
 import React, { ElementType, useContext, useMemo, ReactElement } from 'react';
-import { Route } from 'react-router';
+import { Route } from 'react-router-dom';
 import { last } from 'lodash';
 
 import {
@@ -147,7 +147,14 @@ const useGetProtectedRoutes = (
                     allowAnonymous || hasNoAccount
                         ? Component
                         : ProtectedComponent;
-                return <Route path={getPath(routeConfig)} component={page} />;
+                console.log('getPath(routeConfig)', getPath(routeConfig));
+                return (
+                    <Route
+                        key={routeConfig.baseUrl}
+                        path={getPath(routeConfig)}
+                        component={page}
+                    />
+                );
             }),
         [hasNoAccount, routes],
     );
@@ -174,12 +181,16 @@ const useGetRoutesConfigs = (userHomePage?: string): RouteCustom[] => {
         return setupRoutes;
     }
     if (currentUser) {
-        return [...homeOnlineRoute, ...appRoutes, ...pluginRoutes];
+        return [
+            // ...homeOnlineRoute,
+            ...appRoutes,
+            // ..pluginRoutes
+        ];
     }
     return [
         ...homeOfflineRoute,
         ...appRoutes.filter(route => route.allowAnonymous),
-        ...pluginRoutes.filter(route => route.allowAnonymous),
+        // ...pluginRoutes.filter(route => route.allowAnonymous),
     ];
 };
 
@@ -203,12 +214,12 @@ export const useRoutes = (userHomePage?: string): Result => {
 
     // routes should only change if currentUser has changed
     const routes: ReactElement[] = useMemo(
-        () =>
-            isFetchingCurrentUser ? [] : [...protectedRoutes, ...redirections],
+        () => (isFetchingCurrentUser ? [] : [...protectedRoutes]),
+        // isFetchingCurrentUser ? [] : [...protectedRoutes, ...redirections],
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [isFetchingCurrentUser],
     );
-
+    console.log('routes', routes);
     return useMemo(
         () => ({
             routes,
