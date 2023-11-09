@@ -1,3 +1,5 @@
+import { ScaleThreshold } from '../../../components/LegendBuilder/types';
+
 /* eslint-disable camelcase */
 type FeatureFlag = {
     id: number;
@@ -86,6 +88,7 @@ export type Form = {
     derived: boolean;
     label_keys: string[];
     possible_fields: PossibleField[];
+    legend_threshold: ScaleThreshold;
 };
 
 export type FormDescriptor = {
