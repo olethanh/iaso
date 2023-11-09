@@ -20,6 +20,11 @@ export const convertValueIfDate = value => {
     //  returning numbers early as they can be valid moments (unix timestamps)
     if (typeof value === 'number') return value;
     const asMoment = moment(value);
-    if (asMoment.isValid()) return asMoment.format('LTS');
+    // Check if the hour and minutes are 00:00. If so, use 'L' format, otherwise use 'LTS'
+    if (asMoment.isValid()) {
+        return asMoment.format(
+            asMoment.hour() === 0 && asMoment.minute() === 0 ? 'L' : 'LTS',
+        );
+    }
     return value;
 };
